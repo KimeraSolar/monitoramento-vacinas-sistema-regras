@@ -38,8 +38,10 @@ public class GpsSensorWrapper implements Runnable {
 	}
 	
 	public MovingObject.Location getSensorValue() {
-		int latitude = rand.nextInt(8);
-		int longitude = rand.nextInt(8);
+		float min_lat = (float) -40.358491, max_lat = (float) -20.315344,
+			  min_lon = (float) -40.213780, max_lon = (float) -20.239985;
+		float latitude = (float) (min_lat + rand.nextDouble() * (max_lat - min_lat));
+		float longitude = (float) (min_lon + rand.nextDouble() * (max_lon - min_lon));
 		return new MovingObject.Location(latitude, longitude);
 	}
 }
