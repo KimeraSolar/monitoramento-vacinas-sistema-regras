@@ -38,7 +38,7 @@ public class TempSensorWrapper implements Runnable {
 	}
 	
 	public float getSensorValue() {
-		int min = -10, max = 10;
+		int min = -10, max = 15;
 		return (float) (min + rand.nextDouble() * (max - min));
 	}
 }
