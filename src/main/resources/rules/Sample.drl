@@ -1,2 +1,34 @@
 package com.sample
- 
+
+import com.sample.Vacina.*;
+import java.util.Date;
+
+declare Perigo
+	camara : Camara
+	temp: float
+	ativo: boolean
+	inicio: Date
+	fim: Date
+end
+
+rule "temperatura perto dos limites"
+when
+	$camara : Camara( $temp : temp, ( $temp - vacina.getTipo().getTempMin() < 1 && > 0 ) || ( vacina.getTipo().getTempMax() - $temp < 1 && > 0) )
+	$gerente : Gerente()
+	not (exists ( Perigo( $camara == camara, ativo == true) ) )
+then
+	insert(new Perigo( $camara, $temp, true, new Date(), null ) );
+	$gerente.sendMensagem("<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " muito perto dos limites. >>>"); 
+end
+
+rule "fora de perigo"
+when
+	$camara : Camara( $temp : temp, ( $temp - vacina.getTipo().getTempMin() > 1 ) && ( vacina.getTipo().getTempMax() - $temp > 1) )
+	$perigo : Perigo( $camara == camara, ativo == true)
+	$gerente : Gerente()
+then
+	$perigo.setAtivo( false );
+	$perigo.setFim( new Date() );
+	update( $perigo );
+	$gerente.sendMensagem("<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de perigo. >>>");
+end
