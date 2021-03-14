@@ -3,6 +3,10 @@ package com.sample
 import com.sample.Vacina.*;
 import java.util.Date;
 
+/* ================================================= Regras para verificar perigo ================================================= 
+	Caso a temperatura de uma câmara de vacina chegue perto dos limites dos
+		parâmetros, deve-se notificar os gestores. */
+
 declare Perigo
 	camara : Camara
 	temp: float
