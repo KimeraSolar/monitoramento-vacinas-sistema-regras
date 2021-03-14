@@ -18,6 +18,9 @@ public class Gerente extends MovingObject {
 		this.nome = nome;
 	}
 	
-	
+	public void sendMensagem(String m) {
+		System.out.print("Mensagem para gerente " + this.getNome() + ": ");
+		System.out.println(m);
+	}
 
 }
