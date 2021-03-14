@@ -19,14 +19,14 @@ public class DroolsTest {
     	    KieContainer kContainer = ks.getKieClasspathContainer();
         	KieSession kSession = kContainer.newKieSession("ksession-rules");
         	
-        	Vacina.TipoVacina[] tipos = {	new Vacina.TipoVacina("CoronaVac", -20, -8, 30*24*60*60*1000),
-        									new Vacina.TipoVacina("Covidshield", -10, 8, 20*24*60*60*1000) };
+        	Vacina.TipoVacina[] tipos = {	new Vacina.TipoVacina("CoronaVac", 2, 8, 30*24*60*60*1000),
+        									new Vacina.TipoVacina("Covidshield", 2, 8, 20*24*60*60*1000) };
         	
         	Gerente[] gerentes = {	new Gerente("Gerente 01", "g01"), 
-        							new Gerente("Gerente 02", "g02"), 
+        							new Gerente("Gerente 02", "g02") /*, 
         							new Gerente("Gerente 03", "g03"), 
         							new Gerente("Gerente 04", "g04"), 
-        							new Gerente("Gerente 05", "g05")	};
+        							new Gerente("Gerente 05", "g05")*/	};
         	
         	Camara[] camaras = {	new Camara("c01", new Vacina(tipos[1], new Date(), null, false)),
         							new Camara("c02", new Vacina(tipos[1], new Date(), null, false)),
