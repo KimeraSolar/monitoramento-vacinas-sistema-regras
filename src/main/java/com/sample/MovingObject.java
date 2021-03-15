@@ -31,6 +31,12 @@ public abstract class MovingObject {
 			//TODO: implementar getDistance
 			return 0;
 		}
+
+		@Override
+		public String toString() {
+			return "Location [longitude=" + longitude + ", latitude=" + latitude + "]";
+		}
+		
 	}
 	
 	private Location local;
