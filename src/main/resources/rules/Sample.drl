@@ -34,5 +34,40 @@ then
 	$perigo.setAtivo( false );
 	$perigo.setFim( new Date() );
 	update( $perigo );
-	$gerente.sendMensagem("<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de perigo. >>>");
+	$gerente.sendMensagem("\n\t\t<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de perigo. >>>");
+end
+
+/* ================================================= Regras para verificar temperatura fora da faixa apropriada ================================================= 
+	Caso a temperatura de uma câmara de vacina passe dos limites dos
+		parâmetros, deve-se chamar o gestor mais próximo ao local. */
+
+declare Alerta
+	camara : Camara
+	gerente : Gerente
+	temp: float
+	ativo: boolean
+	inicio: Date
+	fim: Date
+end
+
+rule "temperatura fora do apropriado"
+when
+	$camara : Camara( $temp : temp, ( $temp < vacina.getTipo().getTempMin() ) || ( $temp > vacina.getTipo().getTempMax() ) )
+	$gerente : Gerente( ) // TODO: pegar o gestor mais próximo da camara
+	not ( exists ( Alerta( $camara == camara, $gerente == gerente, ativo == true ) ) )
+then
+	insert ( new Alerta($camara, $gerente, $temp, true, new Date(), null) );
+	$gerente.sendMensagem(	"\n\t\t<<< Alerta na Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + 
+							"\n\t\tFavor comparecer no local " + $camara.getLocal() + " imediatamente. >>> ");
+end
+
+rule "temperatura apropriada"
+when
+	$camara : Camara( $temp : temp, ( $temp > vacina.getTipo().getTempMin() ) && ( $temp < vacina.getTipo().getTempMax() ) )
+	$alerta : Alerta( $camara == camara, $gerente : gerente, ativo == true)
+then
+	$alerta.setAtivo(false);
+	$alerta.setFim(new Date());
+	update( $alerta );
+	$gerente.sendMensagem("<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de alerta. >>>");
 end
