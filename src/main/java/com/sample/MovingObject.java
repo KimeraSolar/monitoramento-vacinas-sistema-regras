@@ -27,9 +27,20 @@ public abstract class MovingObject {
 			return longitude;
 		}
 		
-		public float getDistance(Location other) {
-			//TODO: implementar getDistance
-			return 0;
+		public double getDistance(Location other) {
+			double R = 6371e3; //raio da terra em metros
+			double φ1 = this.latitude * Math.PI/180; // φ, λ in radians
+			double φ2 = other.latitude * Math.PI/180;
+			double Δφ = (this.latitude-other.latitude) * Math.PI/180;
+			double Δλ = (this.longitude-other.longitude) * Math.PI/180;
+
+			double a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+			Math.cos(φ1) * Math.cos(φ2) *
+			Math.sin(Δλ/2) * Math.sin(Δλ/2);
+			double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+			return R * c; // em metros
+			
 		}
 
 		@Override
@@ -63,7 +74,7 @@ public abstract class MovingObject {
 		this.objectId = objectId;
 	}
 	
-	public float getDistance(MovingObject other) {		
+	public double getDistance(MovingObject other) {		
 		return this.getLocal().getDistance(other.getLocal());
 	}
 
