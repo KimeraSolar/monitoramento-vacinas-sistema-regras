@@ -20,7 +20,7 @@ public class DroolsTest {
     	    KieContainer kContainer = ks.getKieClasspathContainer();
         	KieSession kSession = kContainer.newKieSession("ksession-rules");
         	
-        	Vacina.TipoVacina[] tipos = {	new Vacina.TipoVacina("CoronaVac", -2, 8, 30*24*60*60*1000),
+        	Vacina.TipoVacina[] tipos = {	new Vacina.TipoVacina("CoronaVac", -2, 8, 1000),
         									new Vacina.TipoVacina("Covidshield", -4, 10, 20*24*60*60*1000) };
         	
         	List<Gerente> gerentes = new LinkedList<Gerente>(Arrays.asList(new Gerente("Gerente 01", "g01"), 
@@ -29,7 +29,7 @@ public class DroolsTest {
         							new Gerente("Gerente 04", "g04"), 
         							new Gerente("Gerente 05", "g05")));
         	
-        	Camara[] camaras = {	new Camara("c01", new Vacina(tipos[1], new Date(), null, false), gerentes),
+        	Camara[] camaras = {	/*new Camara("c01", new Vacina(tipos[1], new Date(), null, false), gerentes), 
         							new Camara("c02", new Vacina(tipos[1], new Date(), null, false), gerentes),
         							new Camara("c03", new Vacina(tipos[1], new Date(), null, false), gerentes),
         							new Camara("c04", new Vacina(tipos[1], new Date(), null, false), gerentes),
@@ -37,7 +37,7 @@ public class DroolsTest {
         							new Camara("c06", new Vacina(tipos[0], new Date(), null, false), gerentes),
         							new Camara("c07", new Vacina(tipos[0], new Date(), null, false), gerentes),
         							new Camara("c08", new Vacina(tipos[0], new Date(), null, false), gerentes),
-        							new Camara("c09", new Vacina(tipos[0], new Date(), null, false), gerentes),
+        							new Camara("c09", new Vacina(tipos[0], new Date(), null, false), gerentes),*/
         							new Camara("c10", new Vacina(tipos[0], new Date(), null, false), gerentes),	};
         	
         	List<Thread> threads = new LinkedList<Thread>();

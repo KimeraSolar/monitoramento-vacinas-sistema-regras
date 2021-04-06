@@ -26,7 +26,7 @@ public class GpsSensorWrapper implements Runnable {
 			try {	
 				MovingObject m = (MovingObject) kSession.getObject(fact);
 				m.setLocal(getSensorValue());
-				System.out.println("Localização de " + m.getObjectId() + ": " + m.getLocal().getLatitude() + ", " + m.getLocal().getLongitude());
+				//System.out.println("Localização de " + m.getObjectId() + ": " + m.getLocal().getLatitude() + ", " + m.getLocal().getLongitude());
 				kSession.update(fact, m);
 				kSession.fireAllRules();
 				

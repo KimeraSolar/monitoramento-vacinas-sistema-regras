@@ -14,6 +14,7 @@ public class Camara extends MovingObject {
 		this.vacina = vacina;
 		this.gerentes = gerentes;
 		this.ativa = this.vacina == null ? false : true;
+		System.out.println("Camara " + id+ " está ativa? " + this.ativa);
 	}
 
 	public float getTemp() {
@@ -33,7 +34,7 @@ public class Camara extends MovingObject {
 		this.ativa = this.vacina == null ? false : true;
 	}
 	
-	public boolean getAtiva() {
+	public boolean isAtiva() {
 		return ativa;
 	}
 
