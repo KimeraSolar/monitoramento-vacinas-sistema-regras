@@ -53,11 +53,10 @@ end
 rule "temperatura fora do apropriado"
 when
 	$camara : Camara( $temp : temp, ( $temp < vacina.getTipo().getTempMin() ) || ( $temp > vacina.getTipo().getTempMax() ) )
-	$gerente : Gerente( ) // TODO: pegar o gestor mais próximo da camara
-	not ( exists ( Alerta( $camara == camara, $gerente == gerente, ativo == true ) ) )
+	not ( exists ( Alerta( $camara == camara, ativo == true ) ) )
 then
-	insert ( new Alerta($camara, $gerente, $temp, true, new Date(), null) );
-	$gerente.sendMensagem(	"\n\t\t<<< Alerta na Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + 
+	insert ( new Alerta($camara, $camara.gerenteMaisProx(), $temp, true, new Date(), null) );
+	$camara.gerenteMaisProx().sendMensagem(	"\n\t\t<<< Alerta na Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + 
 							"\n\t\tFavor comparecer no local " + $camara.getLocal() + " imediatamente. >>> ");
 end
 

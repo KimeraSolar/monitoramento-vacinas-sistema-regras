@@ -23,7 +23,6 @@ public class DroolsTest {
         	Vacina.TipoVacina[] tipos = {	new Vacina.TipoVacina("CoronaVac", -2, 8, 30*24*60*60*1000),
         									new Vacina.TipoVacina("Covidshield", -4, 10, 20*24*60*60*1000) };
         	
-        	// TODO: pegar o gerente mais próximo da camara na regra "temperatura fora do apropriado"
         	List<Gerente> gerentes = new LinkedList<Gerente>(Arrays.asList(new Gerente("Gerente 01", "g01"), 
         							new Gerente("Gerente 02", "g02"), 
         							new Gerente("Gerente 03", "g03"), 

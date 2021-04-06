@@ -50,8 +50,13 @@ public class Camara extends MovingObject {
 	}
 	
 	public Gerente gerenteMaisProx() {
-		// TODO: pegar o gerente mais proximo
-		return null;
+		Gerente maisProx = gerentes.get(0);
+		for (Gerente g : gerentes) {
+			if (this.getDistance(g) < this.getDistance(maisProx) ) {
+				maisProx = g;
+			}
+		}
+		return maisProx;
 	}
 
 }
