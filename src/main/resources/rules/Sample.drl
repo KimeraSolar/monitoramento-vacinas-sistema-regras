@@ -82,10 +82,11 @@ end
 
 rule "sugerir descarte"
 when
-	$alerta : Alerta ( $camara : camara, camara.isAtiva() == true, $gerente : gerente, ativo == true, (System.currentTimeMillis() - $alerta.getInicio().getTime()) > $camara.getVacina().getTipo().getTempoDescarte())
+	$camara : Camara()
+	$alerta : Alerta ( $camara == camara, $gerente : gerente, ativo == true, $inicio : inicio)
+	eval ((System.currentTimeMillis() - $inicio.getTime()) > $camara.getVacina().getTipo().getTempoDescarte())
 	not (exists (DescarteSugerido($camara == camara, $alerta == alerta) ) )
 then
-	System.out.println((System.currentTimeMillis() - $alerta.getInicio().getTime()) > $camara.getVacina().getTipo().getTempoDescarte());
-	//insert ( new DescarteSugerido($camara, $alerta) );
+	insert ( new DescarteSugerido($camara, $alerta) );
 	$gerente.sendMensagem("<<< Tempo de alerta excedido, descarte sugerido para vacinas na câmara " + $camara.getObjectId() + ". >>>");
 end
