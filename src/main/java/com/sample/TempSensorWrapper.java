@@ -18,6 +18,10 @@ public class TempSensorWrapper implements Runnable {
 		kSession = k;
 		fact = f;
 		rand = new Random();
+		
+		int min = 0, max = 10;
+		Camara c = (Camara) kSession.getObject(fact);
+		c.setTemp(min + rand.nextFloat()*(max - min));
 	}
 	
 	@Override
@@ -43,7 +47,7 @@ public class TempSensorWrapper implements Runnable {
 		if (c.isAtiva()) {
 			float var_min = (float) -0.5, var_max = (float) 0.5;
 			int min = -10, max = 15;
-			val = val + (float) (var_min + rand.nextDouble() * (var_max - var_min));
+			val = val + (var_min + rand.nextFloat() * (var_max - var_min));
 			val = Math.max(min, Math.min(max, val));
 		} else {
 			val = 0;
