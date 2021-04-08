@@ -4,7 +4,7 @@ public class Gerente extends MovingObject {
 	
 	private String nome;
 	
-	public Gerente(String nome, String id) {
+	public Gerente(String id, String nome) {
 		super();
 		this.nome = nome;
 		this.setObjectId(id);
