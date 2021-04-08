@@ -1,3 +1,0 @@
-Id,TipoVacina,TempMin,TempMax,TempoDescarte
-0,"""CoronaVac""",-2,8,5000
-1,"""Covidshield""",-4,10,2000

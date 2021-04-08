@@ -1,10 +1,9 @@
 package com.sample;
 
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.BufferedReader;  
+import java.io.FileReader; 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Arrays;
 import java.util.Date;
 
 import org.kie.api.KieServices;
@@ -15,7 +14,6 @@ import org.kie.api.runtime.rule.FactHandle;
 public class DroolsTest {
 
     public static final void main(String[] args) {
-    	System.out.println(System.getProperty("user.dir"));
     	
         try {
             // load up the knowledge base
@@ -23,37 +21,49 @@ public class DroolsTest {
     	    KieContainer kContainer = ks.getKieClasspathContainer();
         	KieSession kSession = kContainer.newKieSession("ksession-rules");
         	
-        	String path = System.getProperty("user.dir") + "\\test";
-        	
         	List<Vacina.TipoVacina> tipos = new LinkedList<Vacina.TipoVacina>();
         	List<Camara> camaras = new LinkedList<Camara>();
         	List<Gerente> gerentes = new LinkedList<Gerente>();
         	
-        	/*
+        	// Leitura do arquivo de configuração de vacinas
+        	BufferedReader br = new BufferedReader(new FileReader("config\\TiposVacina.csv"));
+        	String line = br.readLine();
         	
-        	Vacina.TipoVacina[] tipos = {	new Vacina.TipoVacina("CoronaVac", -2, 8, 5000),
-        									new Vacina.TipoVacina("Covidshield", -4, 10, 2000) };
+        	while ((line = br.readLine()) != null)  
+        	{  
+        		String[] tipo = line.split(",");   
+        		tipos.add(new Vacina.TipoVacina(tipo[0], Integer.parseInt(tipo[1]), Integer.parseInt(tipo[2]), Integer.parseInt(tipo[3])));
+        	}
         	
-        	List<Gerente> gerentes = new LinkedList<Gerente>(Arrays.asList(new Gerente("Gerente 01", "g01"), 
-        							new Gerente("Gerente 02", "g02"), 
-        							new Gerente("Gerente 03", "g03"), 
-        							new Gerente("Gerente 04", "g04"), 
-        							new Gerente("Gerente 05", "g05")));
+        	br.close();
         	
-        	Camara[] camaras = {	new Camara("c01", new Vacina(tipos[1], new Date(), null, false), gerentes), 
-        							new Camara("c02", new Vacina(tipos[1], new Date(), null, false), gerentes),
-        							new Camara("c03", new Vacina(tipos[1], new Date(), null, false), gerentes),
-        							new Camara("c04", new Vacina(tipos[1], new Date(), null, false), gerentes),
-        							new Camara("c05", new Vacina(tipos[1], new Date(), null, false), gerentes),
-        							new Camara("c06", new Vacina(tipos[0], new Date(), null, false), gerentes),
-        							new Camara("c07", new Vacina(tipos[0], new Date(), null, false), gerentes),
-        							new Camara("c08", new Vacina(tipos[0], new Date(), null, false), gerentes),
-        							new Camara("c09", new Vacina(tipos[0], new Date(), null, false), gerentes),
-        							new Camara("c10", new Vacina(tipos[0], new Date(), null, false), gerentes),	};
-        	*/
+        	// Leitura do arquivo de configuração de gerentes
+        	br = new BufferedReader(new FileReader("config\\Gerentes.csv"));
+        	line = br.readLine();
+        	
+        	while ((line = br.readLine()) != null)  
+        	{  
+        		String[] gerente = line.split(",");   
+        		gerentes.add(new Gerente(gerente[0], gerente[1]));
+        	}
+        	
+        	br.close();
+        	
+        	// Leitura do arquivo de configuração de camaras
+        	br = new BufferedReader(new FileReader("config\\Camaras.csv"));
+        	line = br.readLine();
+        	
+        	while ((line = br.readLine()) != null)   
+        	{  
+        		String[] camara = line.split(",");    
+        		camaras.add(new Camara(camara[0], new Vacina(tipos.get(Integer.parseInt(camara[1])), new Date(), null, false), gerentes ) );
+        	}
+        	
+        	br.close();
+        	
+        	// Inicialização dos sensores
         	List<Thread> threads = new LinkedList<Thread>();
 
-            // go !
         	int sensorid = 0;
             for (Camara c : camaras) {
             	FactHandle f = kSession.insert(c);
