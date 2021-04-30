@@ -37,9 +37,10 @@ public class Eventos {
 	}
 	
 	public static class Perigo{ 
-		public Perigo(Camara camara, float temp, boolean ativo, Date inicio) {
+		public Perigo(Camara camara, Vacina vacina, float temp, boolean ativo, Date inicio) {
 			super();
 			this.camara = camara;
+			this.vacina = vacina;
 			this.temp = temp;
 			this.ativo = ativo;
 			this.inicio = inicio;
@@ -47,6 +48,7 @@ public class Eventos {
 		}
 		
 		private Camara camara;
+		private Vacina vacina;
 		private float temp;
 		private boolean ativo;
 		private Date inicio;
@@ -85,13 +87,20 @@ public class Eventos {
 		public void setDuration(long duration) {
 			this.duration = duration;
 		}
+		public Vacina getVacina() {
+			return vacina;
+		}
+		public void setVacina(Vacina vacina) {
+			this.vacina = vacina;
+		}
 	};
 	
 	public static class Alerta{
 		
-		public Alerta(Camara camara, Gerente gerente, float temp, boolean ativo, Date inicio) {
+		public Alerta(Camara camara, Vacina vacina, Gerente gerente, float temp, boolean ativo, Date inicio) {
 			super();
 			this.camara = camara;
+			this.vacina = vacina;
 			this.gerente = gerente;
 			this.temp = temp;
 			this.ativo = ativo;
@@ -99,6 +108,7 @@ public class Eventos {
 		}
 		
 		private Camara camara;
+		private Vacina vacina;
 		private Gerente gerente;
 		private float temp;
 		private boolean ativo;
@@ -140,6 +150,38 @@ public class Eventos {
 		}
 		public void setDuration(long duration) {
 			this.duration = duration;
+		}
+		public Vacina getVacina() {
+			return vacina;
+		}
+		public void setVacina(Vacina vacina) {
+			this.vacina = vacina;
+		}
+		
+	}
+	
+	public static class Descarte{
+		
+		public Descarte(Alerta alerta, Date timestamp) {
+			super();
+			this.timestamp = timestamp;
+			this.alerta = alerta;
+		}
+		
+		private Date timestamp;
+		private Alerta alerta;
+		
+		public Date getTimestamp() {
+			return timestamp;
+		}
+		public void setTimestamp(Date timestamp) {
+			this.timestamp = timestamp;
+		}
+		public Alerta getAlerta() {
+			return alerta;
+		}
+		public void setAlerta(Alerta alerta) {
+			this.alerta = alerta;
 		}
 		
 	}

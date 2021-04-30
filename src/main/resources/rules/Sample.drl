@@ -9,16 +9,6 @@ declare MudancaTemperatura
 	@timestamp( inicio )
 end
 
-/*
-rule "evento de mudança de temperatura"
-when
-	$mudanca : MudancaTemperatura()
-	$gerente : Gerente()
-then
-	System.out.println($gerente + " " + $mudanca);
-end
-*/
-
 /* ================================================= Regras para verificar perigo ================================================= 
 	Caso a temperatura de uma câmara de vacina chegue perto dos limites dos
 		parâmetros, deve-se notificar os gestores. */
@@ -31,22 +21,22 @@ end
 
 rule "temperatura perto dos limites"
 when
-	$mudanca : MudancaTemperatura( $camara : camara, $temp : temp, ($temp - $camara.getVacina().getTipo().getTempMin() < 1 && > 0 ) || ($camara.getVacina().getTipo().getTempMax() - $temp < 1 && > 0) ) over window:length(1)
-	not (exists ( Perigo( $camara == camara, ativo == true) ) )
+	$camara : Camara( $vacina : vacina, $vacina.isDescartada() == false, $temp : temp, ( $temp - vacina.getTipo().getTempMin() < 1 && > 0 ) || ( vacina.getTipo().getTempMax() - $temp < 1 && > 0) )
+	not (exists ( Perigo( $vacina == vacina, ativo == true) ) )
 then
-	insert(new Perigo( $camara, $temp, true, new Date()) );
-	$camara.sendMessage("<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " muito perto dos limites. >>>"); 
+	insert(new Perigo( $camara, $vacina, $temp, true, new Date()) );
+	$camara.sendMessage("<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " muito perto dos limites para a vacina " + $vacina.getTipo().getNome() + ". >>>"); 
 end
 
 rule "fora de perigo"
 when
-	$mudanca : MudancaTemperatura( $camara : camara, $temp : temp, ($temp - $camara.getVacina().getTipo().getTempMin() > 1) && ($camara.getVacina().getTipo().getTempMin() - $temp > 1) ) over window:length(1)
-	$perigo : Perigo( $camara == camara, $inicio : inicio, ativo == true)
+	$camara : Camara( $vacina : vacina, $vacina.isDescartada() == false, $temp : temp, ( $temp - vacina.getTipo().getTempMin() > 1 ) && ( vacina.getTipo().getTempMax() - $temp > 1) )
+	$perigo : Perigo( $vacina == vacina, $inicio : inicio, ativo == true)
 then
 	$perigo.setAtivo( false );
 	$perigo.setDuration( System.currentTimeMillis() - $inicio.getTime() );
 	update( $perigo );
-	$camara.sendMessage("\n\t\t<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de perigo. >>>");
+	$camara.sendMessage("\n\t\t<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de perigo para a vacina" + $vacina.getTipo().getNome() + ". >>>");
 end
 
 /* ================================================= Regras para verificar temperatura fora da faixa apropriada ================================================= 
@@ -61,21 +51,44 @@ end
 
 rule "temperatura fora do apropriado"
 when
-	$mudanca : MudancaTemperatura( $camara : camara, $temp : temp, ( $temp < $camara.getVacina().getTipo().getTempMin() ) || ( $temp > $camara.getVacina().getTipo().getTempMax() ) ) over window:length(1)
-	not ( exists ( Alerta( $camara == camara, ativo == true ) ) )
+	$camara : Camara( $vacina : vacina, $vacina.isDescartada() == false, $temp : temp, ( $temp < vacina.getTipo().getTempMin() ) || ( $temp > vacina.getTipo().getTempMax() ) )
+	not ( exists ( Alerta( $vacina == vacina, ativo == true ) ) )
 then
-	insert ( new Alerta($camara, $camara.gerenteMaisProx(), $temp, true, new Date()) );
-	$camara.gerenteMaisProx().sendMensagem(	"\n\t\t<<< Alerta na Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + 
+	insert ( new Alerta($camara, $vacina, $camara.gerenteMaisProx(), $temp, true, new Date()) );
+	$camara.gerenteMaisProx().sendMensagem(	"\n\t\t<<< Alerta na Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora dos limites para a vacina " + $vacina.getTipo().getNome() +
 							"\n\t\tFavor comparecer no local " + $camara.getLocal() + " imediatamente. >>> ");
 end
 
 rule "temperatura apropriada"
 when
-	$mudanca : MudancaTemperatura( $camara : camara, $temp : temp, ( $temp > $camara.getVacina().getTipo().getTempMin() ) && ( $temp < $camara.getVacina().getTipo().getTempMax() ) ) over window:length(1)
-	$alerta : Alerta( $camara == camara, $inicio : inicio, $gerente : gerente, ativo == true)
+	$camara : Camara( $vacina : vacina, $vacina.isDescartada() == false, $temp : temp, ( $temp > vacina.getTipo().getTempMin() ) && ( $temp < vacina.getTipo().getTempMax() ) )
+	$alerta : Alerta( $vacina == vacina, $inicio : inicio, $gerente : gerente, ativo == true)
 then
 	$alerta.setAtivo(false);
 	$alerta.setDuration( System.currentTimeMillis() - $inicio.getTime() );
 	update( $alerta );
-	$gerente.sendMensagem("<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de alerta. >>>");
+	$gerente.sendMensagem("<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de alerta para a vacina " + $vacina.getTipo().getNome() + ". >>>");
+end
+
+/* ================================================= Regras para sugerir descarte ================================================= 
+	Caso a temperatura de uma câmara de vacina fique fora dos limites dos
+		parâmetros definidos durante um certo intervalo de tempo (a ser definido), o
+		sistema deve sugerir o descarte do produto. */
+		
+declare Descarte
+	@role( event )
+	@timestamp ( timestamp )
+end
+
+rule "sugerir descarte"
+when
+	$camara : Camara($vacina : vacina, $vacina.isDescartada() == false)
+	$alerta : Alerta ( $vacina == vacina, $gerente : gerente, ativo == true, $inicio : inicio)
+	//not (Alerta( this == $alerta) over window:time( $vacina.getTipo().getTempoDescarte() ) )
+	eval ((System.currentTimeMillis() - $inicio.getTime()) > $camara.getVacina().getTipo().getTempoDescarte())
+	not (exists (Descarte($alerta == alerta) ) )
+then
+	insert ( new Descarte($alerta, new Date()) );
+	$vacina.setDescartada(true);
+	$gerente.sendMensagem("<<< Tempo de alerta excedido, descarte sugerido para vacina " + $vacina.getTipo().getNome() + " na câmara " + $camara.getObjectId() + ". >>>");
 end
