@@ -38,7 +38,9 @@ public class Camara extends MovingObject {
 	}
 
 	public void sendMessage(String m) {
-		System.out.println(m);
+		for(Gerente g : gerentes) {
+			g.sendMensagem(m);
+		};
 	}
 	
 	public void addGerente(Gerente g) {

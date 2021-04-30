@@ -1,8 +1,10 @@
 package com.sample;
 
+import java.util.Date;
 import java.util.Random;
 
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.FactHandle;
 
 public class TempSensorWrapper implements Runnable {
@@ -22,6 +24,7 @@ public class TempSensorWrapper implements Runnable {
 		int min = 0, max = 10;
 		Camara c = (Camara) kSession.getObject(fact);
 		c.setTemp(min + rand.nextFloat()*(max - min));
+		c.setTemp(-4);
 	}
 	
 	@Override
@@ -32,6 +35,7 @@ public class TempSensorWrapper implements Runnable {
 				c.setTemp(getSensorValue());
 				System.out.println("Temperatura de " + c.getObjectId() + ": " + c.getTemp());
 				kSession.update(fact, c);
+				kSession.insert( new Eventos.MudancaTemperatura(c, c.getTemp(), new Date()) );
 				kSession.fireAllRules();
 				
 				Thread.sleep(1000*rand.nextInt(10)+1000);

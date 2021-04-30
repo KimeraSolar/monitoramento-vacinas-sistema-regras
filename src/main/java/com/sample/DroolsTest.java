@@ -6,7 +6,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Date;
 
+import org.kie.api.KieBase;
+import org.kie.api.KieBaseConfiguration;
 import org.kie.api.KieServices;
+import org.kie.api.conf.EventProcessingOption;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
@@ -16,10 +19,12 @@ public class DroolsTest {
     public static final void main(String[] args) {
     	
         try {
-            // load up the knowledge base
+        	// load up the knowledge base        	
 	        KieServices ks = KieServices.Factory.get();
     	    KieContainer kContainer = ks.getKieClasspathContainer();
         	KieSession kSession = kContainer.newKieSession("ksession-rules");
+        	
+        	
         	
         	List<Vacina.TipoVacina> tipos = new LinkedList<Vacina.TipoVacina>();
         	List<Camara> camaras = new LinkedList<Camara>();
