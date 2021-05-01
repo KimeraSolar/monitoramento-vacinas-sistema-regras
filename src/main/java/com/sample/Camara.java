@@ -4,7 +4,7 @@ import java.util.List;
 public class Camara extends MovingObject {
 
 	private float temp;
-	private Vacina vacina;
+	private Vacina vacina; //TODO: fazer mais de uma vacina por camara
 	private List<Gerente> gerentes;
 	private boolean ativa;
 	
