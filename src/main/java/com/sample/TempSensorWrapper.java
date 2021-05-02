@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Random;
 
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.FactHandle;
 
 public class TempSensorWrapper implements Runnable {

@@ -30,12 +30,8 @@ public class DroolsTest {
      * @throws IOException 
      */
     public static HttpServer startServer() throws IOException {
-        // create a resource config that scans for JAX-RS resources and providers
-        // in sbr.tbservice package
-    	
-    	//Criamos 5 recursos para este serviço: Febre, ContactUderVigilance, Location, Temperatura, SistuationSuspiciousTuberculosis
-        final ResourceConfig rc = new ResourceConfig().packages("com.sample");
         
+    	final ResourceConfig rc = new ResourceConfig().packages("com.sample");
         
         // create and start a new instance of grizzly http server
         // exposing the Jersey application at BASE_URI
@@ -46,7 +42,6 @@ public class DroolsTest {
         StaticHttpHandler staticHttpHandler = new StaticHttpHandler(userDirectory);
         staticHttpHandler.setFileCacheEnabled(false);
         httpServer.getServerConfiguration().addHttpHandler(staticHttpHandler, "/");
-        
         
         httpServer.start();
         
@@ -69,6 +64,7 @@ public class DroolsTest {
         	Resources.gerentes = new HashMap<String, Gerente>();
         	Resources.camaras = new HashMap<String, Camara>();
         	
+        	// TODO: ler a entrada de arquivo xml
         	// Leitura do arquivo de configuração de vacinas
         	BufferedReader br = new BufferedReader(new FileReader("config\\TiposVacina.csv"));
         	String line = br.readLine();
