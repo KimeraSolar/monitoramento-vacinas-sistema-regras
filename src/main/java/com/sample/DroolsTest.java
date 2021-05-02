@@ -60,50 +60,56 @@ public class DroolsTest {
         	List<Vacina.TipoVacina> tipos = new LinkedList<Vacina.TipoVacina>();
         	List<Camara> camaras = new LinkedList<Camara>();
         	List<Gerente> gerentes = new LinkedList<Gerente>();
+        	List<Vacina> vacinas = new LinkedList<Vacina>();
         	
         	Resources.gerentes = new HashMap<String, Gerente>();
         	Resources.camaras = new HashMap<String, Camara>();
         	
         	// TODO: ler a entrada de arquivo xml
         	// Leitura do arquivo de configuração de vacinas
-        	BufferedReader br = new BufferedReader(new FileReader("config\\TiposVacina.csv"));
-        	String line = br.readLine();
+        	Vacina.TipoVacina tipo1 = new Vacina.TipoVacina("CovidShield", -2, 8, 2000), tipo2 = new Vacina.TipoVacina("CoronaVac", -4, 6, 3000); 
         	
-        	while ((line = br.readLine()) != null)  
-        	{  
-        		String[] tipo = line.split(",");   
-        		tipos.add(new Vacina.TipoVacina(tipo[0], Integer.parseInt(tipo[1]), Integer.parseInt(tipo[2]), Integer.parseInt(tipo[3])));
+        	tipos.add(tipo1);
+        	tipos.add(tipo2);
+        	
+        	Gerente g1 = new Gerente("g01", "Gerente 1"), g2 = new Gerente("g02", "Gerente 2");
+        	gerentes.add(g1); gerentes.add(g2);
+        	
+        	for( Gerente g : gerentes) {
+        		Resources.gerentes.put(g.getObjectId(), g); 
+        		kSession.insert(g);
         	}
         	
-        	br.close();
+        	Camara c1 = new Camara("c01"), c2 = new Camara("c02"), c3 = new Camara("c03");
         	
-        	// Leitura do arquivo de configuração de gerentes
-        	br = new BufferedReader(new FileReader("config\\Gerentes.csv"));
-        	line = br.readLine();
+        	c1.addGerente(g1); g1.addCamara(c1);
+        	c1.addGerente(g2); g2.addCamara(c1);
+        	c2.addGerente(g1); g1.addCamara(c2);
+        	c3.addGerente(g1); g1.addCamara(c3);
+        	c3.addGerente(g2); g2.addCamara(c3);
         	
-        	while ((line = br.readLine()) != null)  
-        	{  
-        		String[] gerente = line.split(",");
-        		Gerente g = new Gerente(gerente[0], gerente[1]);
-        		gerentes.add(g);
-        		Resources.gerentes.put(g.getNome(), g);
-        	}
+        	camaras.add(c1); camaras.add(c2); camaras.add(c3);
         	
-        	br.close();
-        	
-        	// Leitura do arquivo de configuração de camaras
-        	br = new BufferedReader(new FileReader("config\\Camaras.csv"));
-        	line = br.readLine();
-        	
-        	while ((line = br.readLine()) != null)   
-        	{  
-        		String[] camara = line.split(",");
-        		Camara c = new Camara(camara[0], new Vacina(tipos.get(Integer.parseInt(camara[1])), new Date(), null, false), gerentes );
-        		camaras.add(c);
+        	for(Camara c : camaras) {
         		Resources.camaras.put(c.getObjectId(), c);
+        		kSession.insert(c);
         	}
         	
-        	br.close();
+        	Vacina v1 = new Vacina(tipo1, new Date(), null, false), 
+				   v2 = new Vacina(tipo1, new Date(), null, false), 
+        		   v3 = new Vacina(tipo2, new Date(), null, false), 
+        		   v4 = new Vacina(tipo2, new Date(), null, false), 
+        		   v5 = new Vacina(tipo2, new Date(), null, false);
+        	
+        	c1.addVacina(v1); c1.addVacina(v2); c1.addVacina(v3);
+        	c2.addVacina(v4); c2.addVacina(v5);
+        	
+        	vacinas.add(v1); vacinas.add(v2); vacinas.add(v3);
+        	vacinas.add(v4); vacinas.add(v5);
+        	
+        	for(Vacina v : vacinas) {
+        		kSession.insert(v);
+        	}
         	
         	// Inicialização dos sensores
         	List<Thread> threads = new LinkedList<Thread>();
@@ -113,7 +119,7 @@ public class DroolsTest {
             	FactHandle f = kSession.insert(c);
             	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), kSession, f)));
             	sensorid += 1;
-            	threads.add(new Thread(new TempSensorWrapper("s" + String.format("%01d", sensorid), kSession, f)));
+            	threads.add(new Thread(new TempSensorWrapper("s" + String.format("%01d", sensorid), kSession, f, "random")));
             	sensorid += 1;
             }
             

@@ -93,9 +93,10 @@ public class Resources {
 		public List<VacinaBrief> getVacinas(@PathParam("camaraid") String camaraId){
 			List<VacinaBrief> vacinas = new LinkedList<VacinaBrief>();
 			Camara c = camaras.get(camaraId);
-			Vacina v = c.getVacina();
-			Vacina.TipoVacina t = v.getTipo();
-			vacinas.add(new VacinaBrief(t.getNome(), (float) t.getTempMax(), (float) t.getTempMin(), v.getAbastecimento(), v.isDescartada()));
+			for (Vacina v : c.getVacinas()) {
+				Vacina.TipoVacina t = v.getTipo();
+				vacinas.add(new VacinaBrief(t.getNome(), (float) t.getTempMax(), (float) t.getTempMin(), v.getAbastecimento(), v.isDescartada()));
+			}
 			return vacinas;
 		}
 	}
