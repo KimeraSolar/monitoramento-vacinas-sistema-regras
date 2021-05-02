@@ -59,14 +59,11 @@ public class Resources {
 	@Path("/{camaraid}/temperaturas")
 	public static class CamaraTemperaturasResource{
 		
-		//TODO: Pegar temperatura x tempo do sistemas
 		@GET
 		@Produces(MediaType.APPLICATION_JSON)
 		public Map<Date, Float> getTemperaturas(@PathParam("camaraid") String camaraId){
-			Map<Date, Float> response = new HashMap<Date, Float>();
-			response.put(new Date(100000), (float) 32.0);
-			response.put(new Date(), (float) 30.0);
-			return response;
+			Camara c = camaras.get(camaraId);
+			return c.getTemperaturas();
 		}
 	}
 	

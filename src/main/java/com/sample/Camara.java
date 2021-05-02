@@ -1,11 +1,15 @@
 package com.sample;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Camara extends MovingObject {
 
 	private float temp;
 	private Vacina vacina; //TODO: fazer mais de uma vacina por camara
 	private List<Gerente> gerentes;
+	private Map<Date, Float> temperaturas;
 	private boolean ativa;
 	
 	public Camara(String id, Vacina vacina, List<Gerente> gerentes) {
@@ -14,6 +18,7 @@ public class Camara extends MovingObject {
 		this.vacina = vacina;
 		this.gerentes = gerentes;
 		this.ativa = this.vacina == null ? false : true;
+		this.temperaturas = new HashMap<Date, Float>();
 	}
 
 	public float getTemp() {
@@ -22,6 +27,7 @@ public class Camara extends MovingObject {
 
 	public void setTemp(float temp) {
 		this.temp = temp;
+		this.temperaturas.put(new Date(), temp);
 	}
 	
 	public Vacina getVacina() {
@@ -59,6 +65,10 @@ public class Camara extends MovingObject {
 			}
 		}
 		return maisProx;
+	}
+
+	public Map<Date, Float> getTemperaturas() {
+		return temperaturas;
 	}
 
 }
