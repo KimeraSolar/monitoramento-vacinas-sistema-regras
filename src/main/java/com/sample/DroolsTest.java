@@ -42,8 +42,8 @@ public class DroolsTest {
         
         HttpServer httpServer = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc, false);
         
-        //TODO: pegar caminho dinamico
-        StaticHttpHandler staticHttpHandler = new StaticHttpHandler("E:\\Projetos\\SistemasRegras\\tbservice_vs3.zip_expanded\\tbservice");
+        String userDirectory = System.getProperty("user.dir");
+        StaticHttpHandler staticHttpHandler = new StaticHttpHandler(userDirectory);
         staticHttpHandler.setFileCacheEnabled(false);
         httpServer.getServerConfiguration().addHttpHandler(staticHttpHandler, "/");
         
