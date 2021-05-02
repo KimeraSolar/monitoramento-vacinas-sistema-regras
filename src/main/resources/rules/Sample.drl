@@ -26,7 +26,7 @@ when
 	not (exists ( Perigo( $vacina == vacina, ativo == true) ) )
 then
 	insert(new Perigo( $camara, $vacina, $temp, true, new Date()) );
-	$camara.sendMessage("<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " muito perto dos limites para a vacina " + $vacina.getTipo().getNome() + ". >>>"); 
+	$camara.sendMessage("A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " muito perto dos limites para a vacina " + $vacina.getTipo().getNome() + "."); 
 end
 
 rule "fora de perigo"
@@ -38,7 +38,7 @@ then
 	$perigo.setAtivo( false );
 	$perigo.setDuration( System.currentTimeMillis() - $inicio.getTime() );
 	update( $perigo );
-	$camara.sendMessage("\n\t\t<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de perigo para a vacina" + $vacina.getTipo().getNome() + ". >>>");
+	$camara.sendMessage("A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de perigo para a vacina " + $vacina.getTipo().getNome() + ".");
 end
 
 /* ================================================= Regras para verificar temperatura fora da faixa apropriada ================================================= 
@@ -58,8 +58,8 @@ when
 	not ( exists ( Alerta( $vacina == vacina, ativo == true ) ) )
 then
 	insert ( new Alerta($camara, $vacina, $camara.gerenteMaisProx(), $temp, true, new Date()) );
-	$camara.gerenteMaisProx().sendMensagem(	"\n\t\t<<< Alerta na Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora dos limites para a vacina " + $vacina.getTipo().getNome() +
-							"\n\t\tFavor comparecer no local " + $camara.getLocal() + " imediatamente. >>> ");
+	$camara.gerenteMaisProx().sendMensagem(	"Alerta na Câmara " + $camara.getObjectId() + " com temperatura " + $temp + " fora dos limites para a vacina " + $vacina.getTipo().getNome() +
+							". Favor comparecer no local " + $camara.getLocal() + " imediatamente.");
 end
 
 rule "temperatura apropriada"
@@ -71,7 +71,7 @@ then
 	$alerta.setAtivo(false);
 	$alerta.setDuration( System.currentTimeMillis() - $inicio.getTime() );
 	update( $alerta );
-	$gerente.sendMensagem("<<< A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de alerta para a vacina " + $vacina.getTipo().getNome() + ". >>>");
+	$gerente.sendMensagem("A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de alerta para a vacina " + $vacina.getTipo().getNome() + ".");
 end
 
 /* ================================================= Regras para sugerir descarte ================================================= 
@@ -89,11 +89,65 @@ when
 	$vacina : Vacina( descartada == false )
 	$camara : Camara( vacinas contains $vacina )
 	$alerta : Alerta ( $vacina == vacina, $gerente : gerente, ativo == true, $inicio : inicio)
-	//not (Alerta( this == $alerta) over window:time( $vacina.getTipo().getTempoDescarte() ) )
 	eval ((System.currentTimeMillis() - $inicio.getTime()) > $vacina.getTipo().getTempoDescarte())
 	not (exists (Descarte($alerta == alerta) ) )
 then
 	insert ( new Descarte($alerta, new Date()) );
 	$vacina.setDescartada(true);
-	$gerente.sendMensagem("<<< Tempo de alerta excedido, descarte sugerido para vacina " + $vacina.getTipo().getNome() + " na câmara " + $camara.getObjectId() + ". >>>");
+	$gerente.sendMensagem("Tempo de alerta excedido, descarte sugerido para vacina " + $vacina.getTipo().getNome() + " na câmara " + $camara.getObjectId() + ".");
 end
+
+/* ================================================= Regras para sugerir manutenção ================================================= 
+	Caso haja muitos casos de eventos de Perigo em um curto intervalo de tempo,
+		o sistema deve sugerir manutenção da camara. */
+		
+declare ManutencaoNecessaria
+	camara : Camara
+	ativo : boolean
+end
+		
+rule "Sugerir manutenção na camara"
+when
+	$camara : Camara( ativa == true )
+	$casosPerigo : Number() from accumulate(
+		$p : Perigo ( $camara == camara ) over window:time( 1m ),
+		count( $p )
+	)
+	$casosAlerta : Number() from accumulate(
+		$a : Alerta ( $camara == camara ) over window:time( 1m ),
+		count( $a )
+	)
+	eval($casosPerigo.intValue() + $casosAlerta.intValue() >= 3)
+	not( exists( ManutencaoNecessaria( $camara == camara, ativo == true ) ) )
+then
+	insert(new ManutencaoNecessaria( $camara, true ) );
+	$camara.sendMessage("Manutenção sugerida na unidade " + $camara.getObjectId() + " após " + ($casosPerigo.intValue() + $casosAlerta.intValue()) + " casos de perigo e/ou alerta nos últimos 1m.");
+end
+
+rule "Sem necessidade de manutenção"
+when
+	$camara : Camara( ativa == true )
+	$casosPerigo : Number() from accumulate(
+		$p : Perigo ( $camara == camara ) over window:time( 1m ),
+		count( $p )
+	)
+	$casosAlerta : Number() from accumulate(
+		$a : Alerta ( $camara == camara ) over window:time( 1m ),
+		count( $a )
+	)
+	eval($casosPerigo.intValue() + $casosAlerta.intValue() < 3)
+	$manutencao : ManutencaoNecessaria( $camara == camara, ativo == true )
+then
+	$manutencao.setAtivo( false );
+	update($manutencao);
+	$camara.sendMessage("Sem necessidade de manutenção na unidade " + $camara.getObjectId() + " após " + ($casosPerigo.intValue() + $casosAlerta.intValue()) + " casos de perigo e/ou alerta nos últimos 1m.");
+end
+
+/*
+rule "sugerir manutenção nos sensores"
+when
+
+then
+
+end
+*/

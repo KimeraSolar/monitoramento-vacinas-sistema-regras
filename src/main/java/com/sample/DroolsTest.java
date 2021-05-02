@@ -67,7 +67,7 @@ public class DroolsTest {
         	
         	// TODO: ler a entrada de arquivo xml
         	// Leitura do arquivo de configuração de vacinas
-        	Vacina.TipoVacina tipo1 = new Vacina.TipoVacina("CovidShield", -2, 8, 2000), tipo2 = new Vacina.TipoVacina("CoronaVac", -4, 6, 3000); 
+        	Vacina.TipoVacina tipo1 = new Vacina.TipoVacina("CovidShield", -2, 8, 10000), tipo2 = new Vacina.TipoVacina("CoronaVac", -4, 6, 20000); 
         	
         	tipos.add(tipo1);
         	tipos.add(tipo2);
