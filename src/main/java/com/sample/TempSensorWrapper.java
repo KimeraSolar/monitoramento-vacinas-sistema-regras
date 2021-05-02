@@ -12,13 +12,15 @@ public class TempSensorWrapper implements Runnable {
 	FactHandle fact;
 	Random rand;
 	String sensorId;
+	String opMode;
 	
-	public TempSensorWrapper(String id, KieSession k, FactHandle f) {
+	public TempSensorWrapper(String id, KieSession k, FactHandle f, String mode) {
 		super();
 		sensorId = id;
 		kSession = k;
 		fact = f;
 		rand = new Random();
+		opMode = mode;
 		
 		int min = 0, max = 10;
 		Camara c = (Camara) kSession.getObject(fact);
@@ -45,6 +47,39 @@ public class TempSensorWrapper implements Runnable {
 	}
 	
 	public float getSensorValue() {
+		
+		float val = 0;
+		if(opMode == "random") {
+			val = this.generateRandomTemp();
+		}else if(opMode == "decreasing") {
+			val = this.decreasingTemp();
+		}else if(opMode == "increasing") {
+			val = this.increasingTemp();
+		}
+		return val;
+	}
+	
+	private float decreasingTemp() {
+		Camara c = (Camara) kSession.getObject(fact);
+		float val = c.getTemp();
+		if (c.isAtiva()) {
+			val = val - (float) 0.5;
+			val = Math.min(val, -15);
+		}
+		return val;
+	}
+	
+	private float increasingTemp() {
+		Camara c = (Camara) kSession.getObject(fact);
+		float val = c.getTemp();
+		if (c.isAtiva()) {
+			val = val + (float) 0.5;
+			val = Math.min(val, -15);
+		}
+		return val;
+	}
+	
+	private float generateRandomTemp() {
 		Camara c = (Camara) kSession.getObject(fact);
 		float val = c.getTemp();
 		if (c.isAtiva()) {

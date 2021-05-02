@@ -119,7 +119,7 @@ public class DroolsTest {
             	FactHandle f = kSession.insert(c);
             	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), kSession, f)));
             	sensorid += 1;
-            	threads.add(new Thread(new TempSensorWrapper("s" + String.format("%01d", sensorid), kSession, f)));
+            	threads.add(new Thread(new TempSensorWrapper("s" + String.format("%01d", sensorid), kSession, f, "random")));
             	sensorid += 1;
             }
             
