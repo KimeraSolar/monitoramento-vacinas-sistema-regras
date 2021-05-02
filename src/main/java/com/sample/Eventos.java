@@ -4,8 +4,8 @@ import java.util.Date;
 
 public class Eventos {
 	
-	public static class MudancaTemperatura{
-		public MudancaTemperatura(Camara camara, float temp, Date inicio) {
+	public static class LeituraTemperatura{
+		public LeituraTemperatura(Camara camara, float temp, Date inicio) {
 			super();
 			this.camara = camara;
 			this.temp = temp;

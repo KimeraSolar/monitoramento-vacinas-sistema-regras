@@ -36,7 +36,7 @@ public class TempSensorWrapper implements Runnable {
 				c.setTemp(getSensorValue());
 				System.out.println("Temperatura de " + c.getObjectId() + ": " + c.getTemp());
 				kSession.update(fact, c);
-				kSession.insert( new Eventos.MudancaTemperatura(c, c.getTemp(), new Date()) );
+				kSession.insert( new Eventos.LeituraTemperatura(c, c.getTemp(), new Date()) );
 				kSession.fireAllRules();
 				
 				Thread.sleep(1000*rand.nextInt(10)+1000);
