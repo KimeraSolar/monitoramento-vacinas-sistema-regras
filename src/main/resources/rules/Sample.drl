@@ -21,7 +21,8 @@ end
 
 rule "temperatura perto dos limites"
 when
-	$camara : Camara( $vacina : vacina, $vacina.isDescartada() == false, $temp : temp, ( $temp - vacina.getTipo().getTempMin() < 1 && > 0 ) || ( vacina.getTipo().getTempMax() - $temp < 1 && > 0) )
+	$vacina : Vacina( descartada == false )
+	$camara : Camara( vacinas contains $vacina, $temp : temp, ( $temp - $vacina.getTipo().getTempMin() < 1 && > 0 ) || ( $vacina.getTipo().getTempMax() - $temp < 1 && > 0) )
 	not (exists ( Perigo( $vacina == vacina, ativo == true) ) )
 then
 	insert(new Perigo( $camara, $vacina, $temp, true, new Date()) );
@@ -30,7 +31,8 @@ end
 
 rule "fora de perigo"
 when
-	$camara : Camara( $vacina : vacina, $vacina.isDescartada() == false, $temp : temp, ( $temp - vacina.getTipo().getTempMin() > 1 ) && ( vacina.getTipo().getTempMax() - $temp > 1) )
+	$vacina : Vacina( descartada == false )
+	$camara : Camara( vacinas contains $vacina, $temp : temp, ( $temp - $vacina.getTipo().getTempMin() > 1 ) && ( $vacina.getTipo().getTempMax() - $temp > 1) )
 	$perigo : Perigo( $vacina == vacina, $inicio : inicio, ativo == true)
 then
 	$perigo.setAtivo( false );
@@ -51,7 +53,8 @@ end
 
 rule "temperatura fora do apropriado"
 when
-	$camara : Camara( $vacina : vacina, $vacina.isDescartada() == false, $temp : temp, ( $temp < vacina.getTipo().getTempMin() ) || ( $temp > vacina.getTipo().getTempMax() ) )
+	$vacina : Vacina( descartada == false )
+	$camara : Camara( vacinas contains $vacina, $temp : temp, ( $temp < $vacina.getTipo().getTempMin() ) || ( $temp > $vacina.getTipo().getTempMax() ) )
 	not ( exists ( Alerta( $vacina == vacina, ativo == true ) ) )
 then
 	insert ( new Alerta($camara, $vacina, $camara.gerenteMaisProx(), $temp, true, new Date()) );
@@ -61,7 +64,8 @@ end
 
 rule "temperatura apropriada"
 when
-	$camara : Camara( $vacina : vacina, $vacina.isDescartada() == false, $temp : temp, ( $temp > vacina.getTipo().getTempMin() ) && ( $temp < vacina.getTipo().getTempMax() ) )
+	$vacina : Vacina( descartada == false )
+	$camara : Camara( vacinas contains $vacina, $temp : temp, ( $temp > $vacina.getTipo().getTempMin() ) && ( $temp < $vacina.getTipo().getTempMax() ) )
 	$alerta : Alerta( $vacina == vacina, $inicio : inicio, $gerente : gerente, ativo == true)
 then
 	$alerta.setAtivo(false);
@@ -82,10 +86,11 @@ end
 
 rule "sugerir descarte"
 when
-	$camara : Camara($vacina : vacina, $vacina.isDescartada() == false)
+	$vacina : Vacina( descartada == false )
+	$camara : Camara( vacinas contains $vacina )
 	$alerta : Alerta ( $vacina == vacina, $gerente : gerente, ativo == true, $inicio : inicio)
 	//not (Alerta( this == $alerta) over window:time( $vacina.getTipo().getTempoDescarte() ) )
-	eval ((System.currentTimeMillis() - $inicio.getTime()) > $camara.getVacina().getTipo().getTempoDescarte())
+	eval ((System.currentTimeMillis() - $inicio.getTime()) > $vacina.getTipo().getTempoDescarte())
 	not (exists (Descarte($alerta == alerta) ) )
 then
 	insert ( new Descarte($alerta, new Date()) );

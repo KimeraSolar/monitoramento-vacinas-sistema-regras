@@ -2,6 +2,7 @@ package com.sample;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ public class Gerente extends MovingObject {
 		this.nome = nome;
 		this.setObjectId(id);
 		this.mensagens = new HashMap<Date, String>();
+		this.camaras = new LinkedList<Camara>();
 	}
 
 	public String getNome() {
@@ -38,6 +40,10 @@ public class Gerente extends MovingObject {
 
 	public void setCamaras(List<Camara> camaras) {
 		this.camaras = camaras;
+	}
+	
+	public void addCamara(Camara camara) {
+		this.camaras.add(camara);
 	}
 
 	public Map<Date, String> getMensagens() {

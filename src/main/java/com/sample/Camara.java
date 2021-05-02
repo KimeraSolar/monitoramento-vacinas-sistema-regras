@@ -1,23 +1,24 @@
 package com.sample;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class Camara extends MovingObject {
 
 	private float temp;
-	private Vacina vacina; //TODO: fazer mais de uma vacina por camara
+	private List<Vacina> vacinas;
 	private List<Gerente> gerentes;
 	private Map<Date, Float> temperaturas;
 	private boolean ativa;
 	
-	public Camara(String id, Vacina vacina, List<Gerente> gerentes) {
+	public Camara(String id) {
 		super();
 		this.setObjectId(id);
-		this.vacina = vacina;
-		this.gerentes = gerentes;
-		this.ativa = this.vacina == null ? false : true;
+		this.gerentes = new LinkedList<Gerente>();
+		this.vacinas = new LinkedList<Vacina>();
+		this.ativa = false;
 		this.temperaturas = new HashMap<Date, Float>();
 	}
 
@@ -30,13 +31,23 @@ public class Camara extends MovingObject {
 		this.temperaturas.put(new Date(), temp);
 	}
 	
-	public Vacina getVacina() {
-		return vacina;
+	public List<Vacina> getVacinas() {
+		return vacinas;
 	}
 
-	public void setVacina(Vacina vacina) {
-		this.vacina = vacina;
-		this.ativa = this.vacina == null ? false : true;
+	public void setVacinas(List<Vacina> vacinas) {
+		this.vacinas = vacinas;
+		this.ativa = this.vacinas.isEmpty() ? false : true;
+	}
+	
+	public void addVacina(Vacina v) {
+		this.vacinas.add(v);
+		this.ativa = true;
+	}
+	
+	public void removeVacina(Vacina v) {
+		this.vacinas.remove(v);
+		this.ativa = this.vacinas.isEmpty() ? false : true;
 	}
 	
 	public boolean isAtiva() {
