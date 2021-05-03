@@ -14,6 +14,11 @@ import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.ext.Provider;
+
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
@@ -23,6 +28,18 @@ public class DroolsTest {
 	
 	// Base URI the Grizzly HTTP server will listen on
     public static final String BASE_URI = "http://localhost:8080/vacinas/";
+    
+    @Provider
+    public static class CORSFilter implements ContainerResponseFilter {
+
+    	   public void filter(ContainerRequestContext request, ContainerResponseContext response) {
+
+    		   response.getHeaders().add("Access-Control-Allow-Origin", "*");
+    	       response.getHeaders().add("Access-Control-Allow-Headers", "CSRF-Token, X-Requested-By, Authorization, Content-Type");
+    	       response.getHeaders().add("Access-Control-Allow-Credentials", "true");
+    	       response.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
+    	    }
+   	   }
 
     /**
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
@@ -32,11 +49,14 @@ public class DroolsTest {
     public static HttpServer startServer() throws IOException {
         
     	final ResourceConfig rc = new ResourceConfig().packages("com.sample");
+    	
+    	rc.register(CORSFilter.class);
+    	rc.register(new CORSFilter());
         
         // create and start a new instance of grizzly http server
         // exposing the Jersey application at BASE_URI
         
-        HttpServer httpServer = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc, false);
+        HttpServer httpServer = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
         
         String userDirectory = System.getProperty("user.dir");
         StaticHttpHandler staticHttpHandler = new StaticHttpHandler(userDirectory);
@@ -67,7 +87,7 @@ public class DroolsTest {
         	
         	// TODO: ler a entrada de arquivo xml
         	// Leitura do arquivo de configuração de vacinas
-        	Vacina.TipoVacina tipo1 = new Vacina.TipoVacina("CovidShield", -2, 8, 10000), tipo2 = new Vacina.TipoVacina("CoronaVac", -4, 6, 20000); 
+        	Vacina.TipoVacina tipo1 = new Vacina.TipoVacina("CovidShield", -2, 8, 5000), tipo2 = new Vacina.TipoVacina("CoronaVac", -4, 6, 10000); 
         	
         	tipos.add(tipo1);
         	tipos.add(tipo2);
@@ -124,7 +144,6 @@ public class DroolsTest {
             }
             
             for (Gerente g : gerentes) {
-            	g.setCamaras(camaras);
             	FactHandle f = kSession.insert(g);
             	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), kSession, f)));
             	sensorid += 1;
