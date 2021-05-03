@@ -15,8 +15,65 @@ function initMap() {
 }
 
 function detalhesCamara(cam) {
-	console.log(cam)
+	document.getElementById("nome-camara").innerHTML = `Câmara ` + cam
+    fetch("http://localhost:8080/vacinas/" + cam + "/vacinas")
+    .then(function( response ){
+        return response.json()
+    })
+    .then(function( response_json ){
+        document.getElementById("vacinas").innerHTML = ``
+        response_json.forEach(createVacina)
+    })
+    /*
+    fetch("http://localhost:8080/vacinas/" + cam + "/temperaturas")
+    .then(function( response ){
+        return response.json()
+    })
+    .then(function( response_json ){
+        // Criar o grafico
+    })
+    */
 }
+
+function createVacina(vac) {
+    let container = document.createElement("div")
+    container.className = "col-xl-4"
+
+    let classe = ''
+    let descarte = ''
+    if(vac.descartada){
+        classe = 'bg-danger'
+        descarte = 'Descartada'
+    }else{
+        classe = 'bg-success'
+        descarte = 'Não descartada'
+    }
+
+    container.innerHTML = `
+        <div class="card text-white ` + classe + ` mb-4">
+            <div class="card-header">
+                <i class="fas fa-syringe"></i>
+                ` + vac.nome + `
+            </div>
+            <div class="card-body">
+                <p class="card-text mb-1"><i class="fas fa-thermometer-half"></i>
+                    Máx: ` + vac.tempMax.toFixed(2) + ` ºC
+                </p>
+                <p class="card-text mb-1"><i class="fas fa-thermometer-half"></i>
+                    Min: ` + vac.tempMin.toFixed(2) + ` ºC
+                </p>
+                <p class="card-text mb-1"> Abastecimento: ` + new Date(vac.abastecimento.replace('[UTC]', '')).toLocaleString("pt-BR") + `</p>
+            </div>
+            <div class="card-footer small" style="text-align: end;">
+                ` + descarte + `
+            </div>
+        </div>
+    `
+
+    document.getElementById("vacinas").appendChild(container)
+
+}
+
 
 function createChamber(chb) {
     let container = document.createElement("div")
@@ -81,7 +138,7 @@ function createChamber(chb) {
 }
 
 function initPage(){
-    fetch("http://localhost:8080/vacinas/g01/camaras", {mode : "cors"})
+    fetch("http://localhost:8080/vacinas/g01/camaras")
     .then(function( response ){
         return response.json()
     })
