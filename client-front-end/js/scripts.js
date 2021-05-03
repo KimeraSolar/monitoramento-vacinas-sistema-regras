@@ -38,16 +38,84 @@ function detalhesCamara(cam) {
         document.getElementById("vacinas").innerHTML = ``
         response_json.forEach(createVacina)
     })
-    /*
+    
     fetch("http://localhost:8080/vacinas/" + cam + "/temperaturas")
     .then(function( response ){
         return response.json()
     })
     .then(function( response_json ){
-        // Criar o grafico
+        criaGrafico( response_json )
     })
-    */
 }
+
+function criaGrafico( temperaturas ){
+    temperaturas.sort(function(a, b) {
+    let keyA = new Date(a.key.replace('[UTC]', '')),
+    keyB = new Date(b.key.replace('[UTC]', ''));
+    // Compare the 2 dates
+    if (keyA < keyB) return -1;
+    if (keyA > keyB) return 1;
+    return 0;
+    })
+
+    let labels = ["02/05/2021", "02/05/2021", "02/05/2021"]
+    let data = [-4, -3.5781832, -4.0057025]
+    // temperaturas.forEach(function(temp){
+    //     labels.push(new Date(temp.key.replace('[UTC]', '')).toLocaleString("pt-BR"))
+    //     data.push(temp.value)
+    // })
+
+    console.log(labels)
+    console.log(data)
+
+    var ctx = document.getElementById("myAreaChart");
+    var myLineChart = new Chart(ctx, {
+      type: 'line',
+      options: {
+        scales: {
+          xAxes: [{
+            
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              maxTicksLimit: 7
+            }
+          }],
+          yAxes: [{
+            ticks: {
+              maxTicksLimit: 5
+            },
+            gridLines: {
+              color: "rgba(0, 0, 0, .125)",
+            }
+          }],
+        },
+        legend: {
+          display: false
+        },
+        data: {
+        labels: labels,
+        datasets: [{
+            label: "Temperatura",
+            lineTension: 0.3,
+            backgroundColor: "rgba(2,117,216,0.2)",
+            borderColor: "rgba(2,117,216,1)",
+            pointRadius: 5,
+            pointBackgroundColor: "rgba(2,117,216,1)",
+            pointBorderColor: "rgba(255,255,255,0.8)",
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "rgba(2,117,216,1)",
+            pointHitRadius: 50,
+            pointBorderWidth: 2,
+            data: data,
+        }],
+        },
+      }
+    })
+}
+
+
 
 function createVacina(vac) {
     let container = document.createElement("div")
