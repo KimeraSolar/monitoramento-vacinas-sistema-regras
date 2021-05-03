@@ -1,17 +1,31 @@
 // Initialize and add the map
-function initMap() {
-    // The location of Uluru
-    const uluru = { lat: -25.344, lng: 131.036 };
-    // The map, centered at Uluru
+function initMap(locations) {
+    // Localização do gerente
+    let gerente = {}
+    locations.forEach(function(location){
+        if(location.key == "Gerente"){
+            gerente.lat = location.value.latitude
+            gerente.lng = location.value.longitude
+        }
+    })
+
     const map = new google.maps.Map(document.getElementById("map"), {
     zoom: 4,
-    center: uluru,
-    });
-    // The marker, positioned at Uluru
-    const marker = new google.maps.Marker({
-    position: uluru,
-    map: map,
-    });
+    center: gerente,
+    })
+
+    locations.forEach(function(location){
+        new google.maps.Marker( { 
+            position : { 
+                lat : location.value.latitude, 
+                lng : location.value.longitude
+            },
+            map : map,
+            title : location.key,
+            icon : location.key == "Gerente" ? "http://maps.google.com/mapfiles/ms/icons/green-dot.png" : "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+        } ) 
+    })
+
 }
 
 function detalhesCamara(cam) {
@@ -137,12 +151,54 @@ function createChamber(chb) {
     document.getElementById("camaras").appendChild(container)
 }
 
+function printMensagens(mensagens){
+    mensagens.sort(function(a, b) {
+    let keyA = new Date(a.key.replace('[UTC]', '')),
+    keyB = new Date(b.key.replace('[UTC]', ''));
+    // Compare the 2 dates
+    if (keyA < keyB) return 1;
+    if (keyA > keyB) return -1;
+    return 0;
+    });
+
+    let container_pai = document.getElementById("mensagens")
+    mensagens.forEach(function(mensagem){
+        let container = document.createElement("div")
+        container.className = "alert alert-secondary"
+        container.role = "alert"
+        container.innerHTML = `
+            <p>` + mensagem.value + `</p>
+            <hr>
+            <p class="mb-0 small">` + new Date(mensagem.key.replace('[UTC]', '')).toLocaleString("pt-BR") + `</p>
+        `
+        container_pai.appendChild(container)
+    })
+
+}
+
 function initPage(){
-    fetch("http://localhost:8080/vacinas/g01/camaras")
+    let gerente = "g01"
+    fetch("http://localhost:8080/vacinas/" + gerente + "/camaras")
     .then(function( response ){
         return response.json()
     })
     .then(function( response_json ){
     	response_json.forEach(createChamber)
+    })
+    
+    fetch("http://localhost:8080/vacinas/" + gerente + "/mensagens")
+    .then(function( response ){
+        return response.json()
+    })
+    .then(function( response_json ){
+        printMensagens(response_json)
+    })
+
+    fetch("http://localhost:8080/vacinas/" + gerente + "/locations")
+    .then(function( response ){
+        return response.json()
+    })
+    .then(function( response_json ){
+        initMap(response_json)
     })
 }

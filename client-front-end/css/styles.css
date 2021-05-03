@@ -16,3 +16,8 @@ body {
     width: 100%;
     /* The width is the width of the web page */
   }
+
+#mensagens {
+    max-height: 746px;
+    overflow: auto;
+}

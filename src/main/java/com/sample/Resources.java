@@ -124,7 +124,7 @@ public class Resources {
 			for (Camara c : g.getCamaras()) {
 				response.add(new LocationObject(c.getObjectId(), c.getLocal()));
 			}
-			response.add(new LocationObject(g.getNome(), g.getLocal()));
+			response.add(new LocationObject("Gerente", g.getLocal()));
 			return response;
 		}
 	}
