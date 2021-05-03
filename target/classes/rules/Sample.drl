@@ -3,6 +3,7 @@ package com.sample
 import com.sample.Vacina.*;
 import com.sample.Eventos.*;
 import java.util.Date;
+import java.lang.Math;
 
 declare LeituraTemperatura
 	@role( event )
@@ -97,7 +98,7 @@ then
 	$gerente.sendMensagem("Tempo de alerta excedido, descarte sugerido para vacina " + $vacina.getTipo().getNome() + " na câmara " + $camara.getObjectId() + ".");
 end
 
-/* ================================================= Regras para sugerir manutenção ================================================= 
+/* ================================================= Regras para sugerir manutenção de Camaras ================================================= 
 	Caso haja muitos casos de eventos de Perigo em um curto intervalo de tempo,
 		o sistema deve sugerir manutenção da camara. */
 		
@@ -141,6 +142,28 @@ then
 	$manutencao.setAtivo( false );
 	update($manutencao);
 	$camara.sendMessage("Sem necessidade de manutenção na unidade " + $camara.getObjectId() + " após " + ($casosPerigo.intValue() + $casosAlerta.intValue()) + " casos de perigo e/ou alerta nos últimos 1m.");
+end
+
+/* ================================================= Regras para identificar variações bruscas de temperatura ================================================= 
+	Identificar caso haja uma variação muito brusca de temperatura. */
+	
+declare VariacaoBruscaTemp
+	camara : Camara
+	tempInicial : LeituraTemperatura
+	tempFinal : LeituraTemperatura
+	
+	@role( event )
+end
+
+rule "Houve variação brusca de temperatura"
+when
+	$tempFinal : LeituraTemperatura( $tempF : temp, $camara : camara ) over window:length(10)
+	$tempInicial : LeituraTemperatura( $tempI : temp, $camara == camara, this before[0s, 10s] $tempFinal )
+	eval(Math.abs($tempF - $tempI) > 5)
+	not( exists ( VariacaoBruscaTemp( $tempFinal == tempFinal, $tempInicial == tempInicial ) ) )
+then
+	insert( new VariacaoBruscaTemp( $camara, $tempInicial, $tempFinal ) );
+	$camara.sendMessage("Variação brusca de temperatura na câmara " + $camara.getObjectId() + " com variação de " + ($tempF - $tempI) + " em menos de 10s."); 
 end
 
 /*

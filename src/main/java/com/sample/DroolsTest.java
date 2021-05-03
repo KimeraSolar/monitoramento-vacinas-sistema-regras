@@ -137,7 +137,7 @@ public class DroolsTest {
         	int sensorid = 0;
             for (Camara c : camaras) {
             	FactHandle f = kSession.insert(c);
-            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), kSession, f)));
+            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), kSession, f, "static")));
             	sensorid += 1;
             	threads.add(new Thread(new TempSensorWrapper("s" + String.format("%01d", sensorid), kSession, f, "random")));
             	sensorid += 1;
@@ -145,7 +145,7 @@ public class DroolsTest {
             
             for (Gerente g : gerentes) {
             	FactHandle f = kSession.insert(g);
-            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), kSession, f)));
+            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), kSession, f, "random")));
             	sensorid += 1;
             }
             
