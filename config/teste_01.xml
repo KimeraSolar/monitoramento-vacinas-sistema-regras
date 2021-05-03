@@ -1,0 +1,28 @@
+<teste-vacinas>
+	<tipos-vacinas>
+		<tipo-vacina nome="CoronaVac" tempMin="-4" tempMax="10" tempo="10000"></tipo-vacina>
+		<tipo-vacina nome="CovidShield" tempMin="-2" tempMax="8" tempo="5000"></tipo-vacina>
+	</tipos-vacinas>
+	<gerentes>
+		<gerente nome="Gerente 01" id="g01" gps-sensor-mode="random"></gerente>
+		<gerente nome="Gerente 02" id="g02" gps-sensor-mode="random"></gerente></gerentes>
+	<camaras>
+		<camara id="c01" temp-sensor-mode="smooth" gps-sensor-mode="static"></camara>
+		<camara id="c02" temp-sensor-mode="random" gps-sensor-mode="static"></camara>
+		<camara id="c03" temp-sensor-mode="smooth" gps-sensor-mode="static"></camara>
+	</camaras>
+	<vacinas>
+		<vacina tipo="CovidShield" camara="c01"></vacina>
+		<vacina tipo="CovidShield" camara="c01"></vacina>
+		<vacina tipo="CoronaVac" camara="c01"></vacina>
+		<vacina tipo="CoronaVac" camara="c02"></vacina>
+		<vacina tipo="CoronaVac" camara="c02"></vacina>
+	</vacinas>
+	<responsabilidades>
+		<responsabilidade gerente="g01" camara="c01"></responsabilidade>
+		<responsabilidade gerente="g02" camara="c01"></responsabilidade>
+		<responsabilidade gerente="g01" camara="c02"></responsabilidade>
+		<responsabilidade gerente="g01" camara="c03"></responsabilidade>
+		<responsabilidade gerente="g02" camara="c03"></responsabilidade>
+	</responsabilidades>
+</teste-vacinas>
