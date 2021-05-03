@@ -14,6 +14,10 @@ function initMap() {
     });
 }
 
+function detalhesCamara(cam) {
+	console.log(cam)
+}
+
 function createChamber(chb) {
     let container = document.createElement("div")
     container.className = "col-xl-3"
@@ -28,7 +32,7 @@ function createChamber(chb) {
     
     let anchor = document.createElement("a")
     anchor.innerText = "Ver detalhes"
-    anchor.href = "#"
+    anchor.href = "javascript:detalhesCamara('" + chb.id + "')"
     
     let footerIconDiv = document.createElement("div")
     footerIconDiv.className = "small"
@@ -74,4 +78,14 @@ function createChamber(chb) {
     container.appendChild(card)
 
     document.getElementById("camaras").appendChild(container)
+}
+
+function initPage(){
+    fetch("http://localhost:8080/vacinas/g01/camaras", {mode : "cors"})
+    .then(function( response ){
+        return response.json()
+    })
+    .then(function( response_json ){
+    	response_json.forEach(createChamber)
+    })
 }
