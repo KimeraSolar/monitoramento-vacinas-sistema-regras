@@ -29,8 +29,6 @@ public class Gerente extends MovingObject {
 	}
 	
 	public void sendMensagem(String m) {
-		System.out.print("Mensagem para gerente " + this.getNome() + ": ");
-		System.out.println(m);
 		this.mensagens.put(new Date(), m);
 	}
 
