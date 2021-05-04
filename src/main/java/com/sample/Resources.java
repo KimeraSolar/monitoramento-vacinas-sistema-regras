@@ -24,7 +24,9 @@ public class Resources {
      * endpoint 3: retornar a lista de vacinas da câmara com nome, data de vencimento do lote, temp. max, temp. min, % margem de segurança e data de abastecimento - precisa receber o id da câmara
      * endpoint 4: retornar a localização das câmaras - precisa receber o id do gerente
      * endpoint 5: retornar as mensagens de alerta - precisa receber o id do gerente
+     * endpoint 6: retornar os id e nome de todos os gerentes - não recebe parametro
 	 * */
+	
 	@Path("/{username}/camaras")
 	public static class CamarasResource{
 		
@@ -136,6 +138,31 @@ public class Resources {
 		@Produces(MediaType.APPLICATION_JSON)
 		public Map<Date, String> getMensagens(@PathParam("username") String userName){
 			return gerentes.get(userName).getMensagens();
+		}
+	}
+	
+	@Path("/gerentes")
+	public static class GerentesResource{
+		
+		public static class GerenteObject{
+			public GerenteObject(String key, String value) {
+				super();
+				this.key = key;
+				this.value = value;
+			}
+			
+			public String key;
+			public String value;
+		}
+		
+		@GET
+		@Produces(MediaType.APPLICATION_JSON)
+		public List<GerenteObject> getGerentes(){
+			List<GerenteObject> response = new LinkedList<GerenteObject>();
+			for(Map.Entry<String, Gerente> entry : gerentes.entrySet()) {
+				response.add(new GerenteObject(entry.getKey(), entry.getValue().getNome()));
+			}
+			return response;
 		}
 	}
 }

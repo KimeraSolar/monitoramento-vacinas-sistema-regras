@@ -29,6 +29,7 @@ function initMap(locations) {
 }
 
 function detalhesCamara(cam) {
+    document.getElementById("detalhes-placeholder").innerHTML = ``
 	document.getElementById("nome-camara").innerHTML = `Câmara ` + cam
     fetch("http://localhost:8080/vacinas/" + cam + "/vacinas")
     .then(function( response ){
@@ -67,8 +68,13 @@ function criaGrafico( temperaturas ){
         dataset.push(temp.value)
     })
 
-    var ctx = document.getElementById("myAreaChart");
-
+    var ctx = document.createElement("canvas");
+    ctx.getContext("2d").height = "40"
+    
+    let area = document.getElementById("myAreaChart")
+    area.innerHTML = ``
+    area.appendChild(ctx)
+    
     new Chart(ctx, {
         type: 'line',
         data: {
@@ -82,6 +88,7 @@ function criaGrafico( temperaturas ){
           ]
         }
     });
+
 }
 
 
@@ -212,13 +219,36 @@ function printMensagens(mensagens){
 
 }
 
-function initPage(){
-    let gerente = "g01"
+function createGerente( gerente ){
+    let container = document.getElementById("gerentes")
+    let button = document.createElement("button")
+    button.className = "btn btn-sm btn-outline-secondary"
+    button.type = "button"
+    button.innerText = gerente.value
+    container.appendChild(button)
+    button.addEventListener("click", function(){
+        initPage(gerente.key)
+    })
+}
+
+function initDocument(){
+    fetch("http://localhost:8080/vacinas/gerentes")
+    .then(function( response ){
+        return response.json()
+    })
+    .then(function( response_json ){
+        response_json.forEach(createGerente)
+    })
+}
+
+function initPage(gerente){
+    
     fetch("http://localhost:8080/vacinas/" + gerente + "/camaras")
     .then(function( response ){
         return response.json()
     })
     .then(function( response_json ){
+        document.getElementById("camaras").innerHTML = ``
     	response_json.forEach(createChamber)
     })
     
@@ -227,6 +257,7 @@ function initPage(){
         return response.json()
     })
     .then(function( response_json ){
+        document.getElementById("mensagens").innerHTML = ``
         printMensagens(response_json)
     })
 
@@ -237,4 +268,9 @@ function initPage(){
     .then(function( response_json ){
         initMap(response_json)
     })
+
+    document.getElementById("vacinas").innerHTML = ``
+    document.getElementById("nome-camara").innerHTML = ``
+    document.getElementById("myAreaChart").innerHTML = ``
+    document.getElementById("detalhes-placeholder").innerHTML = `Escolha uma câmara para ver detalhes.`
 }
