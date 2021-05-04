@@ -99,6 +99,7 @@ when
 then
 	insert ( new Descarte($alerta, new Date()) );
 	$vacina.setDescartada(true);
+	update($vacina);
 	System.out.println("Descarte sugerido para vacina " + $vacina.getTipo().getNome() + ": " +  $camara.getObjectId() + ".");
 	$gerente.sendMensagem("Tempo de alerta excedido, descarte sugerido para vacina " + $vacina.getTipo().getNome() + " na câmara " + $camara.getObjectId() + ".");
 end
