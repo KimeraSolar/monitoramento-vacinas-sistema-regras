@@ -33,10 +33,12 @@ public class TempSensorWrapper implements Runnable {
 		while(true) {
 			try {	
 				Camara c = (Camara) kSession.getObject(fact);
-				c.setTemp(sensor.getSensorValue());
+				if(c.isAtiva()) {
+					c.setTemp(sensor.getSensorValue());
+					kSession.update(fact, c);
+					kSession.insert( new Eventos.LeituraTemperatura(c, c.getTemp(), new Date()) );
+				}
 				System.out.println("Temperatura de " + c.getObjectId() + ": " + c.getTemp());
-				kSession.update(fact, c);
-				kSession.insert( new Eventos.LeituraTemperatura(c, c.getTemp(), new Date()) );
 				kSession.fireAllRules();
 				
 				Thread.sleep(1000*rand.nextInt(10)+1000);
