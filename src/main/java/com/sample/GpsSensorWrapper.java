@@ -46,7 +46,7 @@ public class GpsSensorWrapper implements Runnable {
 	
 	public void setOpMode(String mode) {
 		opMode = mode;
-		if(opMode == "static") {
+		if(opMode.equals("static")) {
 			sensor = new StaticSensor(-10,10,-20,20,rand);
 		}else {
 			sensor = new RandomSensor(-10,10,-20,20,rand);

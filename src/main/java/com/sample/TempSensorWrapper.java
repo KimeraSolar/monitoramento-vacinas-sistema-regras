@@ -54,11 +54,11 @@ public class TempSensorWrapper implements Runnable {
 
 	public void setOpMode(String opMode) {
 		this.opMode = opMode;
-		if (opMode == "smooth") {
+		if (opMode.equals("smooth")) {
 			sensor = new SmoothRandomSensor((float)-10, (float)15, rand, kSession, fact);
-		}else if(opMode == "increasing") {
+		}else if(opMode.equals("increasing")) {
 			sensor = new IncreasingSensor((float)20, kSession, fact);
-		}else if(opMode == "decreasing") {
+		}else if(opMode.equals("decreasing")) {
 			sensor = new DecreasingSensor((float)-15, kSession, fact);
 		}else {
 			sensor = new RandomSensor((float)-10, (float)15, rand);
