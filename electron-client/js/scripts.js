@@ -58,61 +58,30 @@ function criaGrafico( temperaturas ){
     return 0;
     })
 
-    let labels = ["02/05/2021", "02/05/2021", "02/05/2021"]
-    let data = [-4, -3.5781832, -4.0057025]
-    // temperaturas.forEach(function(temp){
-    //     labels.push(new Date(temp.key.replace('[UTC]', '')).toLocaleString("pt-BR"))
-    //     data.push(temp.value)
-    // })
+    temperaturas = temperaturas.slice(temperaturas.length - 20, temperaturas.length)
 
-    console.log(labels)
-    console.log(data)
+    let labels = []
+    let dataset = []
+    temperaturas.forEach(function(temp){
+        labels.push(new Date(temp.key.replace('[UTC]', '')).toLocaleString("pt-BR"))
+        dataset.push(temp.value)
+    })
 
     var ctx = document.getElementById("myAreaChart");
-    var myLineChart = new Chart(ctx, {
-      type: 'line',
-      options: {
-        scales: {
-          xAxes: [{
-            
-            gridLines: {
-              display: false
-            },
-            ticks: {
-              maxTicksLimit: 7
-            }
-          }],
-          yAxes: [{
-            ticks: {
-              maxTicksLimit: 5
-            },
-            gridLines: {
-              color: "rgba(0, 0, 0, .125)",
-            }
-          }],
-        },
-        legend: {
-          display: false
-        },
+
+    new Chart(ctx, {
+        type: 'line',
         data: {
-        labels: labels,
-        datasets: [{
-            label: "Temperatura",
-            lineTension: 0.3,
-            backgroundColor: "rgba(2,117,216,0.2)",
-            borderColor: "rgba(2,117,216,1)",
-            pointRadius: 5,
-            pointBackgroundColor: "rgba(2,117,216,1)",
-            pointBorderColor: "rgba(255,255,255,0.8)",
-            pointHoverRadius: 5,
-            pointHoverBackgroundColor: "rgba(2,117,216,1)",
-            pointHitRadius: 50,
-            pointBorderWidth: 2,
-            data: data,
-        }],
-        },
-      }
-    })
+          labels: labels,
+          datasets: [{ 
+              data: dataset,
+              label: "Temperatura",
+              borderColor: "#3e95cd",
+              fill: true
+            }
+          ]
+        }
+    });
 }
 
 
@@ -159,7 +128,6 @@ function createVacina(vac) {
 
 function createChamber(chb) {
     let container = document.createElement("div")
-    container.className = "col-xl-3"
 
     let card = document.createElement("div")
     let header = document.createElement("div")

@@ -21,3 +21,8 @@ body {
     max-height: 746px;
     overflow: auto;
 }
+
+#camaras {
+    max-height: 1243px;
+    overflow: auto;
+}
