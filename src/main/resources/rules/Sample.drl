@@ -27,7 +27,8 @@ when
 	not (exists ( Perigo( $vacina == vacina, ativo == true) ) )
 then
 	insert(new Perigo( $camara, $vacina, $temp, true, new Date()) );
-	$camara.sendMessage("A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " muito perto dos limites para a vacina " + $vacina.getTipo().getNome() + "."); 
+	System.out.println("Temperatura perto dos limites da vacina " + $vacina.getTipo().getNome() +": " + $camara.getObjectId() + " " + $temp + "ºC.");
+	$camara.sendMessage("A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + "ºC muito perto dos limites para a vacina " + $vacina.getTipo().getNome() + "."); 
 end
 
 rule "fora de perigo"
@@ -39,6 +40,7 @@ then
 	$perigo.setAtivo( false );
 	$perigo.setDuration( System.currentTimeMillis() - $inicio.getTime() );
 	update( $perigo );
+	System.out.println("Temperatura normalizada para vacina " + $vacina.getTipo().getNome() +": " + $camara.getObjectId() + " " + $temp + "ºC.");
 	$camara.sendMessage("A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de perigo para a vacina " + $vacina.getTipo().getNome() + ".");
 end
 
@@ -59,6 +61,7 @@ when
 	not ( exists ( Alerta( $vacina == vacina, ativo == true ) ) )
 then
 	insert ( new Alerta($camara, $vacina, $camara.gerenteMaisProx(), $temp, true, new Date()) );
+	System.out.println("Temperatura fora dos limites para vacina " + $vacina.getTipo().getNome() +": " + $camara.getObjectId() + " " + $temp + "ºC.");
 	$camara.gerenteMaisProx().sendMensagem(	"Alerta na Câmara " + $camara.getObjectId() + " com temperatura " + $temp + " fora dos limites para a vacina " + $vacina.getTipo().getNome() +
 							". Favor comparecer no local " + $camara.getLocal() + " imediatamente.");
 end
@@ -72,6 +75,7 @@ then
 	$alerta.setAtivo(false);
 	$alerta.setDuration( System.currentTimeMillis() - $inicio.getTime() );
 	update( $alerta );
+	System.out.println("Temperatura dentro dos limites para vacina " + $vacina.getTipo().getNome() +": " + $camara.getObjectId() + " " + $temp + "ºC.");
 	$gerente.sendMensagem("A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de alerta para a vacina " + $vacina.getTipo().getNome() + ".");
 end
 
@@ -95,6 +99,7 @@ when
 then
 	insert ( new Descarte($alerta, new Date()) );
 	$vacina.setDescartada(true);
+	System.out.println("Descarte sugerido para vacina " + $vacina.getTipo().getNome() + ": " +  $camara.getObjectId() + ".");
 	$gerente.sendMensagem("Tempo de alerta excedido, descarte sugerido para vacina " + $vacina.getTipo().getNome() + " na câmara " + $camara.getObjectId() + ".");
 end
 
@@ -122,6 +127,7 @@ when
 	not( exists( ManutencaoNecessaria( $camara == camara, ativo == true ) ) )
 then
 	insert(new ManutencaoNecessaria( $camara, true ) );
+	System.out.println("Manutenção sugerida: "  + $camara.getObjectId() + " após " + ($casosPerigo.intValue() + $casosAlerta.intValue()) + " casos de perigo e/ou alerta nos últimos 1m.");
 	$camara.sendMessage("Manutenção sugerida na unidade " + $camara.getObjectId() + " após " + ($casosPerigo.intValue() + $casosAlerta.intValue()) + " casos de perigo e/ou alerta nos últimos 1m.");
 end
 
@@ -141,6 +147,7 @@ when
 then
 	$manutencao.setAtivo( false );
 	update($manutencao);
+	System.out.println("Sem necessidade de manutenção na unidade " + $camara.getObjectId() + " após " + ($casosPerigo.intValue() + $casosAlerta.intValue()) + " casos de perigo e/ou alerta nos últimos 1m.");
 	$camara.sendMessage("Sem necessidade de manutenção na unidade " + $camara.getObjectId() + " após " + ($casosPerigo.intValue() + $casosAlerta.intValue()) + " casos de perigo e/ou alerta nos últimos 1m.");
 end
 
@@ -148,11 +155,12 @@ end
 	Identificar caso haja uma variação muito brusca de temperatura. */
 	
 declare VariacaoBruscaTemp
+	@role( event )
+	
 	camara : Camara
 	tempInicial : LeituraTemperatura
 	tempFinal : LeituraTemperatura
-	
-	@role( event )
+
 end
 
 rule "Houve variação brusca de temperatura"
@@ -163,14 +171,31 @@ when
 	not( exists ( VariacaoBruscaTemp( $tempFinal == tempFinal, $tempInicial == tempInicial ) ) )
 then
 	insert( new VariacaoBruscaTemp( $camara, $tempInicial, $tempFinal ) );
+	System.out.println("Variação brusca de temperatura na câmara " + $camara.getObjectId() + " com variação de " + ($tempF - $tempI) + " em menos de 10s.");
 	$camara.sendMessage("Variação brusca de temperatura na câmara " + $camara.getObjectId() + " com variação de " + ($tempF - $tempI) + " em menos de 10s."); 
 end
 
-/*
+
+/* ================================================= Regras para sugerir manutenção de Sensores ================================================= 
+	Caso haja muitos casos de Mudanças Bruscas de Temperatura em um curto intervalo de tempo,
+		o sistema deve sugerir manutenção dos sensores. */
+
+declare ManutencaoNecessariaSensores
+	camara : Camara
+	ativo : boolean
+end
+
 rule "sugerir manutenção nos sensores"
 when
-
+	$camara : Camara( ativa == true )
+	$casosVariacaoBrusca : Number() from accumulate(
+		$v : VariacaoBruscaTemp( $camara == camara ) over window:time( 1m ),
+		count( $v )
+	)
+	eval( $casosVariacaoBrusca.intValue() >= 10 )
+	not( exists( ManutencaoNecessariaSensores( $camara == camara, ativo == true ) ) )
 then
-
+	insert(new ManutencaoNecessariaSensores( $camara, true ) );
+	System.out.println("Manutenção sugerida nos sensores da unidade " + $camara.getObjectId() + " após " + $casosVariacaoBrusca.intValue() + " casos de variação brusca de temperatura em 1m.");
+	$camara.sendMessage("Manutenção sugerida nos sensores da unidade " + $camara.getObjectId() + " após " + $casosVariacaoBrusca.intValue() + " casos de variação brusca de temperatura em 1m.");
 end
-*/
