@@ -26,3 +26,7 @@ body {
     max-height: 1243px;
     overflow: auto;
 }
+
+.button-gerente{
+    margin-left: 10px;
+}

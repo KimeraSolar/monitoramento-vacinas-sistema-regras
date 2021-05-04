@@ -222,7 +222,7 @@ function printMensagens(mensagens){
 function createGerente( gerente ){
     let container = document.getElementById("gerentes")
     let button = document.createElement("button")
-    button.className = "btn btn-sm btn-outline-secondary"
+    button.className = "btn btn-sm btn-outline-secondary button-gerente"
     button.type = "button"
     button.innerText = gerente.value
     container.appendChild(button)
@@ -237,6 +237,11 @@ function initDocument(){
         return response.json()
     })
     .then(function( response_json ){
+        response_json.sort(function(a, b){
+            if (a.value < b.value) return -1;
+            if (a.value > b.value) return 1;
+            return 0;
+        })
         response_json.forEach(createGerente)
     })
 }
