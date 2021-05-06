@@ -186,7 +186,7 @@ declare ManutencaoNecessariaSensores
 	ativo : boolean
 end
 
-rule "sugerir manutenção nos sensores"
+rule "Sugerir manutenção nos sensores"
 when
 	$camara : Camara( ativa == true )
 	$casosVariacaoBrusca : Number() from accumulate(
@@ -199,4 +199,20 @@ then
 	insert(new ManutencaoNecessariaSensores( $camara, true ) );
 	System.out.println("Manutenção sugerida nos sensores da unidade " + $camara.getObjectId() + " após " + $casosVariacaoBrusca.intValue() + " casos de variação brusca de temperatura em 1m.");
 	$camara.sendMessage("Manutenção sugerida nos sensores da unidade " + $camara.getObjectId() + " após " + $casosVariacaoBrusca.intValue() + " casos de variação brusca de temperatura em 1m.");
+end
+
+rule "Sem necessidade de manutenção nos sensores"
+when
+	$camara : Camara( ativa == true )
+	$casosVariacaoBrusca : Number() from accumulate(
+		$v : VariacaoBruscaTemp( $camara == camara ) over window:time( 1m ),
+		count( $v )
+	)
+	eval($casosVariacaoBrusca.intValue() < 10)
+	$manutencao : ManutencaoNecessariaSensores( $camara == camara, ativo == true )
+then
+	$manutencao.setAtivo( false );
+	update($manutencao);
+	System.out.println("Sem necessidade de manutenção dos sensores na unidade " + $camara.getObjectId() + " após " + $casosVariacaoBrusca.intValue() + " casos de variação brusca de temperatura nos últimos 1m.");
+	$camara.sendMessage("Sem necessidade de manutenção dos sensores na unidade " + $camara.getObjectId() + " após " + $casosVariacaoBrusca.intValue() + " casos de variação brusca de temperatura nos últimos 1m.");
 end
