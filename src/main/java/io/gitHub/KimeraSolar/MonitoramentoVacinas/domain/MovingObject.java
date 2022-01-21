@@ -1,4 +1,4 @@
-package com.sample;
+package io.gitHub.KimeraSolar.MonitoramentoVacinas.domain;
 
 public abstract class MovingObject {
 	

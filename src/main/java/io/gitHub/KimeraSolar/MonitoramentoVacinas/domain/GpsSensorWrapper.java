@@ -1,4 +1,4 @@
-package com.sample;
+package io.gitHub.KimeraSolar.MonitoramentoVacinas.domain;
 
 import java.util.Random;
 
