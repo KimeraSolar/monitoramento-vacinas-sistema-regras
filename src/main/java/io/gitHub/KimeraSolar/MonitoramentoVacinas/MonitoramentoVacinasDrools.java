@@ -12,12 +12,12 @@ public class MonitoramentoVacinasDrools {
     }
 
     public static class Message {
-        public static final int HELLO   = 0;
-        public static final int GOODBYE = 1;
+        public static final int OHAYO   = 0;
+        public static final int GOODMORNING = 1;
 
-        private String          message;
+        private String message;
 
-        private int             status;
+        private int status;
 
         public Message() {
 
