@@ -32,7 +32,7 @@ public class DroolsTest {
 	
 	// Base URI the Grizzly HTTP server will listen on
     public static final String BASE_URI = "http://localhost:8080/vacinas/";
-    public static final String INPUT_FILE = "config\\teste_01.xml";
+    public static final String INPUT_FILE = "config/teste_01.xml";
     
     @Provider
     public static class CORSFilter implements ContainerResponseFilter {

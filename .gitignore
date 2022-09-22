@@ -32,6 +32,9 @@ pom.xml.tag
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-/target/
+target
 
 node_modules
+.vscode
+.apt_generated
+.apt_generated_tests
