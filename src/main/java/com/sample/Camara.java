@@ -1,4 +1,4 @@
-package io.gitHub.KimeraSolar.MonitoramentoVacinas.domain;
+package com.sample;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Camara extends MovingObject {
-
 
 	private float temp;
 	private List<Vacina> vacinas;

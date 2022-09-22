@@ -1,10 +1,7 @@
-import io.gitHub.KimeraSolar.MonitoramentoVacinas.domain.Eventos.Perigo;
-import io.gitHub.KimeraSolar.MonitoramentoVacinas.domain.Eventos.Alerta;
-import io.gitHub.KimeraSolar.MonitoramentoVacinas.domain.Eventos.Descarte;
-import io.gitHub.KimeraSolar.MonitoramentoVacinas.domain.Eventos.LeituraTemperatura;
-import io.gitHub.KimeraSolar.MonitoramentoVacinas.domain.Camara;
-import io.gitHub.KimeraSolar.MonitoramentoVacinas.domain.Vacina;
-import io.gitHub.KimeraSolar.MonitoramentoVacinas.domain.Gerente;
+package com.sample
+
+import com.sample.Vacina.*;
+import com.sample.Eventos.*;
 import java.util.Date;
 import java.lang.Math;
 
@@ -24,7 +21,6 @@ declare Perigo
 end
 
 rule "temperatura perto dos limites"
-dialect "java"
 when
 	$vacina : Vacina( descartada == false )
 	$camara : Camara( vacinas contains $vacina, $temp : temp, ( $temp - $vacina.getTipo().getTempMin() < 1 && > 0 ) || ( $vacina.getTipo().getTempMax() - $temp < 1 && > 0) )
@@ -36,7 +32,6 @@ then
 end
 
 rule "fora de perigo"
-dialect "java"
 when
 	$vacina : Vacina( descartada == false )
 	$camara : Camara( vacinas contains $vacina, $temp : temp, ( $temp - $vacina.getTipo().getTempMin() > 1 ) && ( $vacina.getTipo().getTempMax() - $temp > 1) )
@@ -45,7 +40,7 @@ then
 	$perigo.setAtivo( false );
 	$perigo.setDuration( System.currentTimeMillis() - $inicio.getTime() );
 	update( $perigo );
-	System.out.println("Temperatura normalizada para vacina " + $vacina.getTipo().getNome() + ": " + $camara.getObjectId() + " " + $temp + "ºC.");
+	System.out.println("Temperatura normalizada para vacina " + $vacina.getTipo().getNome() +": " + $camara.getObjectId() + " " + $temp + "ºC.");
 	$camara.sendMessage("A Câmara " + $camara.getObjectId() + " está com temperatura " + $temp + " fora de perigo para a vacina " + $vacina.getTipo().getNome() + ".");
 end
 
@@ -60,7 +55,6 @@ declare Alerta
 end
 
 rule "temperatura fora do apropriado"
-dialect "java"
 when
 	$vacina : Vacina( descartada == false )
 	$camara : Camara( vacinas contains $vacina, $temp : temp, ( $temp < $vacina.getTipo().getTempMin() ) || ( $temp > $vacina.getTipo().getTempMax() ) )
@@ -73,7 +67,6 @@ then
 end
 
 rule "temperatura apropriada"
-dialect "java"
 when
 	$vacina : Vacina( descartada == false )
 	$camara : Camara( vacinas contains $vacina, $temp : temp, ( $temp > $vacina.getTipo().getTempMin() ) && ( $temp < $vacina.getTipo().getTempMax() ) )
@@ -97,7 +90,6 @@ declare Descarte
 end
 
 rule "sugerir descarte"
-dialect "java"
 when
 	$vacina : Vacina( descartada == false )
 	$camara : Camara( vacinas contains $vacina )
@@ -122,7 +114,6 @@ declare ManutencaoNecessaria
 end
 		
 rule "Sugerir manutenção na camara"
-dialect "java"
 when
 	$camara : Camara( ativa == true )
 	$casosPerigo : Number() from accumulate(
@@ -142,7 +133,6 @@ then
 end
 
 rule "Sem necessidade de manutenção"
-dialect "java"
 when
 	$camara : Camara( ativa == true )
 	$casosPerigo : Number() from accumulate(
@@ -175,7 +165,6 @@ declare VariacaoBruscaTemp
 end
 
 rule "Houve variação brusca de temperatura"
-dialect "java"
 when
 	$tempFinal : LeituraTemperatura( $tempF : temp, $camara : camara ) over window:length(10)
 	$tempInicial : LeituraTemperatura( $tempI : temp, $camara == camara, this before[0s, 10s] $tempFinal )
@@ -198,7 +187,6 @@ declare ManutencaoNecessariaSensores
 end
 
 rule "Sugerir manutenção nos sensores"
-dialect "java"
 when
 	$camara : Camara( ativa == true )
 	$casosVariacaoBrusca : Number() from accumulate(
@@ -214,7 +202,6 @@ then
 end
 
 rule "Sem necessidade de manutenção nos sensores"
-dialect "java"
 when
 	$camara : Camara( ativa == true )
 	$casosVariacaoBrusca : Number() from accumulate(
@@ -228,27 +215,4 @@ then
 	update($manutencao);
 	System.out.println("Sem necessidade de manutenção dos sensores na unidade " + $camara.getObjectId() + " após " + $casosVariacaoBrusca.intValue() + " casos de variação brusca de temperatura nos últimos 1m.");
 	$camara.sendMessage("Sem necessidade de manutenção dos sensores na unidade " + $camara.getObjectId() + " após " + $casosVariacaoBrusca.intValue() + " casos de variação brusca de temperatura nos últimos 1m.");
-end
-
-/* ================================================= Regra Hello World ================================================= 
-	Uma regra apenas para testes */
-
-import io.gitHub.KimeraSolar.MonitoramentoVacinas.MonitoramentoVacinasDrools.Message;
-
-rule "Ohayo Sekai"
-    dialect "mvel"
-    when
-        m : Message( status == Message.OHAYO, message : message )
-    then
-        System.out.println( message );
-        modify ( m ) { message = "Good morning world",
-                   status = Message.GOODMORNING };
-end
-
-rule "Good Morning World"
-    dialect "java"
-    when
-        Message( status == Message.GOODMORNING, message : message )
-    then
-        System.out.println( message );
 end
