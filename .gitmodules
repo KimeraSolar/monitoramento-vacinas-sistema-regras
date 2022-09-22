@@ -1,0 +1,3 @@
+[submodule "monitoramento-vacinas-frontend"]
+	path = monitoramento-vacinas-frontend
+	url = https://github.com/KimeraSolar/monitoramento-vacinas-frontend.git
