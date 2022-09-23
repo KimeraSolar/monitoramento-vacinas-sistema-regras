@@ -1,4 +1,4 @@
-package com.sample;
+package kimeraSolar.vacinas;
 
 public abstract class MovingObject {
 	

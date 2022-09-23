@@ -1,7 +1,7 @@
-package com.sample
+package kimeraSolar.vacinas
 
-import com.sample.Vacina.*;
-import com.sample.Eventos.*;
+import kimeraSolar.vacinas.Vacina.*;
+import kimeraSolar.vacinas.Eventos.*;
 import java.util.Date;
 import java.lang.Math;
 

@@ -1,4 +1,4 @@
-package com.sample;
+package kimeraSolar.vacinas;
 
 import java.util.Date;
 import java.util.Random;

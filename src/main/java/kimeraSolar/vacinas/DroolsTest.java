@@ -1,4 +1,4 @@
-package com.sample;
+package kimeraSolar.vacinas;
 
 import java.io.File;
 import java.io.IOException;
