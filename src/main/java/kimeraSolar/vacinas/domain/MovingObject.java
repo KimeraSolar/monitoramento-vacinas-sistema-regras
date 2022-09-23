@@ -1,4 +1,4 @@
-package kimeraSolar.vacinas;
+package kimeraSolar.vacinas.domain;
 
 public abstract class MovingObject {
 	

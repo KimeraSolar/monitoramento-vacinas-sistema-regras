@@ -17,6 +17,13 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 
+import kimeraSolar.vacinas.backend.Resources;
+import kimeraSolar.vacinas.domain.Camara;
+import kimeraSolar.vacinas.domain.Gerente;
+import kimeraSolar.vacinas.domain.GpsSensorWrapper;
+import kimeraSolar.vacinas.domain.TempSensorWrapper;
+import kimeraSolar.vacinas.domain.Vacina;
+
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;

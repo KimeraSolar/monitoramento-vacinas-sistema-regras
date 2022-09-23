@@ -1,4 +1,4 @@
-package kimeraSolar.vacinas;
+package kimeraSolar.vacinas.backend;
 
 import java.util.Map;
 
@@ -11,7 +11,11 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import kimeraSolar.vacinas.MovingObject.Location;
+import kimeraSolar.vacinas.domain.Camara;
+import kimeraSolar.vacinas.domain.Gerente;
+import kimeraSolar.vacinas.domain.MovingObject;
+import kimeraSolar.vacinas.domain.Vacina;
+import kimeraSolar.vacinas.domain.MovingObject.Location;
 
 public class Resources {
 	

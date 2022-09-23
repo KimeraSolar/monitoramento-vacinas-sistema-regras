@@ -1,4 +1,4 @@
-package kimeraSolar.vacinas;
+package kimeraSolar.vacinas.domain;
 
 import java.util.Date;
 
