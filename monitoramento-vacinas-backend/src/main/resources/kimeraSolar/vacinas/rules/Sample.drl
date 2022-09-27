@@ -1,7 +1,8 @@
-package kimeraSolar.vacinas
+package kimeraSolar.vacinas.rules
 
-import kimeraSolar.vacinas.Vacina.*;
-import kimeraSolar.vacinas.Eventos.*;
+import kimeraSolar.vacinas.domain.Vacina;
+import kimeraSolar.vacinas.domain.Eventos.*;
+import kimeraSolar.vacinas.domain.Camara;
 import java.util.Date;
 import java.lang.Math;
 

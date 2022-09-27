@@ -9,7 +9,7 @@
 	<camaras>
 		<camara id="c01" temp-sensor-mode="smooth" gps-sensor-mode="static"></camara>
 		<camara id="c02" temp-sensor-mode="random" gps-sensor-mode="static"></camara>
-		<camara id="c03" temp-sensor-mode="smooth" gps-sensor-mode="static"></camara>
+		<camara id="c03" temp-sensor-mode="increasing" gps-sensor-mode="static"></camara>
 	</camaras>
 	<vacinas>
 		<vacina tipo="CovidShield" camara="c01"></vacina>

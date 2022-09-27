@@ -93,5 +93,11 @@
             <artifactId>kie-ci</artifactId>
             <version>7.63.0.Final</version>
         </dependency>
+
+        <dependency>
+            <groupId>multicast.senseup.awareness.situation</groupId>
+            <artifactId>drools-working-memory-management</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 </dependencies>
 </project>

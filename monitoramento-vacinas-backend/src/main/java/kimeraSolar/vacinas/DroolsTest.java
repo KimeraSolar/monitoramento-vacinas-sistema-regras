@@ -60,7 +60,7 @@ public class DroolsTest {
      */
     public static HttpServer startServer() throws IOException {
         
-    	final ResourceConfig rc = new ResourceConfig().packages("com.sample");
+    	final ResourceConfig rc = new ResourceConfig().packages("kimeraSolar.vacinas");
     	
     	rc.register(CORSFilter.class);
     	rc.register(new CORSFilter());

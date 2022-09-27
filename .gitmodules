@@ -1,3 +1,6 @@
 [submodule "monitoramento-vacinas-frontend"]
 	path = monitoramento-vacinas-frontend
 	url = https://github.com/KimeraSolar/monitoramento-vacinas-frontend.git
+[submodule "Drools-session-play"]
+	path = Drools-session-play
+	url = https://github.com/KimeraSolar/Drools-session-play.git
