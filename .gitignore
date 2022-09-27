@@ -38,4 +38,4 @@ node_modules
 .vscode
 .apt_generated
 .apt_generated_tests
-.save
+*.save
