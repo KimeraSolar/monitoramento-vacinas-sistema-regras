@@ -30,7 +30,6 @@ public class RegrasMonitoramento {
         return rulePackage;
     }
 
-
     static public RulePackage getFactDeclarations(){
         RulePackage rulePackage = new RulePackage();
 
@@ -51,9 +50,9 @@ public class RegrasMonitoramento {
         StringBuilder perigoDeclarationStringBuilder = new StringBuilder();
         perigoDeclarationStringBuilder
             .append("declare Perigo\n")
-            .append("\t@role( event )\n")
-            .append("\t@timestamp( inicio )\n")
-            .append("\t@duration( duration )\n")
+            .append("    @role( event )\n")
+            .append("    @timestamp( inicio )\n")
+            .append("    @duration( duration )\n")
             .append("end\n");
 
         jsonPerigoDeclaration.put("source", perigoDeclarationStringBuilder.toString());
@@ -92,7 +91,6 @@ public class RegrasMonitoramento {
         variacaoDeclarationStringBuilder
             .append("declare VariacaoBruscaTemp\n")
             .append("    @role( event )\n")
-            .append("    \n")
             .append("    camara : Camara\n")
             .append("    tempInicial : LeituraTemperatura\n")
             .append("    tempFinal : LeituraTemperatura\n")
@@ -119,7 +117,7 @@ public class RegrasMonitoramento {
 
         StringBuilder manutencaoCamaraDeclarationStringBuilder = new StringBuilder();
         manutencaoCamaraDeclarationStringBuilder
-            .append("declare ManutencaoNecessaria\n")
+            .append("declare ManutencaoNecessariaCamara\n")
             .append("    camara : Camara\n")
             .append("    ativo : boolean\n")
             .append("end\n");
@@ -294,9 +292,9 @@ public class RegrasMonitoramento {
             .append("        count( $a )\n")
             .append("    )\n")
             .append("    eval($casosPerigo.intValue() + $casosAlerta.intValue() >= 3)\n")
-            .append("    not( exists( ManutencaoNecessaria( $camara == camara, ativo == true ) ) )\n")
+            .append("    not( exists( ManutencaoNecessariaCamara( $camara == camara, ativo == true ) ) )\n")
             .append("then\n")
-            .append("    insert(new ManutencaoNecessaria( $camara, true ) );\n")
+            .append("    insert(new ManutencaoNecessariaCamara( $camara, true ) );\n")
             .append("    System.out.println(\"Manutenção sugerida: \"  + $camara.getObjectId() + \" após \" + ($casosPerigo.intValue() + $casosAlerta.intValue()) + \" casos de perigo e/ou alerta nos últimos 1m.\");\n")
             .append("    $camara.sendMessage(\"Manutenção sugerida na unidade \" + $camara.getObjectId() + \" após \" + ($casosPerigo.intValue() + $casosAlerta.intValue()) + \" casos de perigo e/ou alerta nos últimos 1m.\");\n")
             .append("end\n");
@@ -320,7 +318,7 @@ public class RegrasMonitoramento {
             .append("        count( $a )\n")
             .append("    )\n")
             .append("    eval($casosPerigo.intValue() + $casosAlerta.intValue() < 3)\n")
-            .append("    $manutencao : ManutencaoNecessaria( $camara == camara, ativo == true )\n")
+            .append("    $manutencao : ManutencaoNecessariaCamara( $camara == camara, ativo == true )\n")
             .append("then\n")
             .append("    $manutencao.setAtivo( false );\n")
             .append("    update($manutencao);\n")
