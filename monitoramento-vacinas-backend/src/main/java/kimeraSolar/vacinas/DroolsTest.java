@@ -1,87 +1,46 @@
 package kimeraSolar.vacinas;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
 import java.util.Map;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.StaticHttpHandler;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 
-import kimeraSolar.vacinas.backend.Resources;
+import kimeraSolar.vacinas.backend.configuration.CamarasConfiguration;
+import kimeraSolar.vacinas.backend.configuration.GerentesConfiguration;
 import kimeraSolar.vacinas.domain.Camara;
 import kimeraSolar.vacinas.domain.Gerente;
 import kimeraSolar.vacinas.domain.GpsSensorWrapper;
 import kimeraSolar.vacinas.domain.TempSensorWrapper;
 import kimeraSolar.vacinas.domain.Vacina;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.container.ContainerResponseFilter;
-import javax.ws.rs.ext.Provider;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
-public class DroolsTest {
+@Component
+public class DroolsTest implements CommandLineRunner {
+
+	@Autowired
+	private GerentesConfiguration gerentesConfiguration;
+
+	@Autowired
+	private CamarasConfiguration camarasConfiguration;
 	
-	// Base URI the Grizzly HTTP server will listen on
-    public static final String BASE_URI = "http://localhost:8080/vacinas/";
-    public static final String INPUT_FILE = "config/teste_01.xml";
-    
-    @Provider
-    public static class CORSFilter implements ContainerResponseFilter {
+	public final String INPUT_FILE = "config/teste_01.xml";
 
-    	   public void filter(ContainerRequestContext request, ContainerResponseContext response) {
-
-    		   response.getHeaders().add("Access-Control-Allow-Origin", "*");
-    	       response.getHeaders().add("Access-Control-Allow-Headers", "CSRF-Token, X-Requested-By, Authorization, Content-Type");
-    	       response.getHeaders().add("Access-Control-Allow-Credentials", "true");
-    	       response.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
-    	    }
-   	   }
-
-    /**
-     * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
-     * @return Grizzly HTTP server.
-     * @throws IOException 
-     */
-    public static HttpServer startServer() throws IOException {
-        
-    	final ResourceConfig rc = new ResourceConfig().packages("kimeraSolar.vacinas");
-    	
-    	rc.register(CORSFilter.class);
-    	rc.register(new CORSFilter());
-        
-        // create and start a new instance of grizzly http server
-        // exposing the Jersey application at BASE_URI
-        
-        HttpServer httpServer = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
-        
-        String userDirectory = System.getProperty("user.dir");
-        StaticHttpHandler staticHttpHandler = new StaticHttpHandler(userDirectory);
-        staticHttpHandler.setFileCacheEnabled(false);
-        httpServer.getServerConfiguration().addHttpHandler(staticHttpHandler, "/");
-        
-        httpServer.start();
-        
-        return httpServer;
-           
-    }
-
-    public static final void main(String[] args) {
+    public void run(String... args) {
     	
         try {
         	// load up the knowledge base        	
@@ -92,10 +51,7 @@ public class DroolsTest {
         	Map<String, Vacina.TipoVacina> tipos = new HashMap<String,Vacina.TipoVacina>();
         	Map<String, String> gpsMode = new HashMap<String, String>();
         	Map<String, String> tempMode = new HashMap<String, String>();
-        	
-        	Resources.gerentes = new HashMap<String, Gerente>();
-        	Resources.camaras = new HashMap<String, Camara>();
-        	
+        
         	// Leitura do arquivo de configuração de vacinas
         	File file = new File(INPUT_FILE);
         	Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
@@ -120,7 +76,7 @@ public class DroolsTest {
         		String mode = n.getNamedItem("gps-sensor-mode").getTextContent();
         		
         		Gerente g = new Gerente(id, nome);
-        		Resources.gerentes.put(id, g);
+        		gerentesConfiguration.addGerente(g);
         		gpsMode.put(id, mode);
         	}
         	
@@ -132,7 +88,7 @@ public class DroolsTest {
         		String temp = n.getNamedItem("temp-sensor-mode").getTextContent();
         		
         		Camara c = new Camara(id);
-        		Resources.camaras.put(id, c);
+        		camarasConfiguration.addCamara(c);
         		gpsMode.put(id, gps);
         		tempMode.put(id, temp);
         	}
@@ -145,7 +101,7 @@ public class DroolsTest {
         		
         		Vacina v = new Vacina(tipos.get(tipo), new Date(), null, false);
         		kSession.insert(v);
-        		Resources.camaras.get(c).addVacina(v);
+        		camarasConfiguration.getCamaras().get(c).addVacina(v);
         	}
         	
         	for( int i = 0; i < document.getElementsByTagName("responsabilidade").getLength(); i++) {
@@ -154,8 +110,8 @@ public class DroolsTest {
         		String gerente = n.getNamedItem("gerente").getTextContent();
         		String camara = n.getNamedItem("camara").getTextContent();
         		
-        		Camara c = Resources.camaras.get(camara);
-        		Gerente g = Resources.gerentes.get(gerente);
+        		Camara c = camarasConfiguration.getCamaras().get(camara);
+        		Gerente g = gerentesConfiguration.getGerentes().get(gerente);
         		c.addGerente(g); g.addCamara(c);
         	}
 
@@ -163,7 +119,7 @@ public class DroolsTest {
         	List<Thread> threads = new LinkedList<Thread>();
 
         	int sensorid = 0;
-            for (Map.Entry<String, Camara> entry : Resources.camaras.entrySet()) {
+            for (Map.Entry<String, Camara> entry : camarasConfiguration.getCamaras().entrySet()) {
             	Camara c = entry.getValue();
             	FactHandle f = kSession.insert(c);
             	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), kSession, f, gpsMode.get(entry.getKey()))));
@@ -172,27 +128,20 @@ public class DroolsTest {
             	sensorid += 1;
             }
             
-            for (Map.Entry<String, Gerente> entry : Resources.gerentes.entrySet()) {
+            for (Map.Entry<String, Gerente> entry : gerentesConfiguration.getGerentes().entrySet()) {
             	Gerente g = entry.getValue();
             	FactHandle f = kSession.insert(g);
             	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), kSession, f, gpsMode.get(entry.getKey()))));
             	sensorid += 1;
             }
             
-
-            final HttpServer server = startServer();
-            
-            System.out.println(String.format("Jersey app started with WADL available at "
-                    + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
-            
             for (Thread t : threads) {
             	t.start();
             }
             
-            for (Thread t : threads) {
-            	t.join();
-            }
-            server.shutdown();
+			for (Thread t : threads){
+				t.join();
+			}
         } catch (Throwable t) {
             t.printStackTrace();
         }
