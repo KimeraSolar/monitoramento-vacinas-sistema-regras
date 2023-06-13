@@ -18,11 +18,11 @@ import kimeraSolar.vacinas.domain.Gerente;
 import kimeraSolar.vacinas.domain.GpsSensorWrapper;
 import kimeraSolar.vacinas.domain.TempSensorWrapper;
 import kimeraSolar.vacinas.domain.Vacina;
+import kimeraSolar.vacinas.services.RuleEngine;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.kie.api.KieServices;
-import org.kie.api.runtime.KieContainer;
+import org.kie.api.definition.rule.Rule;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +41,20 @@ public class DroolsTest implements CommandLineRunner {
 	public final String INPUT_FILE = "config/teste_01.xml";
 
     public void run(String... args) {
+
+		RuleEngine.startEngine(args);
+
+        for(Rule rule : RuleEngine.ruleEngineManagement.listRules()){
+            System.out.println(rule.toString());
+        }
+
+		KieSession kSession = RuleEngine.ruleEngineManagement.getWorkingMemory().getKieSession();
     	
         try {
         	// load up the knowledge base        	
-	        KieServices ks = KieServices.Factory.get();
-    	    KieContainer kContainer = ks.getKieClasspathContainer();
-        	KieSession kSession = kContainer.newKieSession("ksession-rules");
+	        //KieServices ks = KieServices.Factory.get();
+    	    //KieContainer kContainer = ks.getKieClasspathContainer();
+        	//KieSession kSession = kContainer.newKieSession("ksession-rules");
         	
         	Map<String, Vacina.TipoVacina> tipos = new HashMap<String,Vacina.TipoVacina>();
         	Map<String, String> gpsMode = new HashMap<String, String>();

@@ -9,10 +9,11 @@ import kimeraSolar.vacinas.services.RuleEngine;
 
 @SpringBootApplication
 public class VacinasApplication {
-    
+
 
     static public void main( String[] args ){
 
+        //test_engine(args);
         SpringApplication.run(VacinasApplication.class, args);
 
     }
