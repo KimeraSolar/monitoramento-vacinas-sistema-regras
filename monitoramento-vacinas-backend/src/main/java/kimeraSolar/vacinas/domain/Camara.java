@@ -5,12 +5,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import kimeraSolar.vacinas.domain.Eventos.LeituraTemperatura;
+
 public class Camara extends MovingObject {
 
-	private float temp;
+	private LeituraTemperatura temperaturaAtual;
 	private List<Vacina> vacinas;
 	private List<Gerente> gerentes;
-	private Map<Date, Float> temperaturas;
+	private Map<Date, LeituraTemperatura> temperaturas;
 	private boolean ativa;
 	
 	public Camara(String id) {
@@ -19,15 +21,15 @@ public class Camara extends MovingObject {
 		this.gerentes = new LinkedList<Gerente>();
 		this.vacinas = new LinkedList<Vacina>();
 		this.ativa = false;
-		this.temperaturas = new HashMap<Date, Float>();
+		this.temperaturas = new HashMap<Date, LeituraTemperatura>();
 	}
 
-	public float getTemp() {
-		return temp;
+	public LeituraTemperatura getTemp() {
+		return temperaturaAtual;
 	}
 
-	public void setTemp(float temp) {
-		this.temp = temp;
+	public void setTemp(LeituraTemperatura temp) {
+		this.temperaturaAtual = temp;
 		this.temperaturas.put(new Date(), temp);
 	}
 	
@@ -78,7 +80,7 @@ public class Camara extends MovingObject {
 		return maisProx;
 	}
 
-	public Map<Date, Float> getTemperaturas() {
+	public Map<Date, LeituraTemperatura> getTemperaturas() {
 		return temperaturas;
 	}
 

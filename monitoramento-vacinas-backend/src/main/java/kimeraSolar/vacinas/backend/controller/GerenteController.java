@@ -53,7 +53,7 @@ public class GerenteController {
 
             for(Camara c : g.getCamaras()){
                 camarasBrief.add(
-                    new CamaraBrief(c.isAtiva(), c.getTemp(), c.getObjectId())
+                    new CamaraBrief(c.isAtiva(), c.getTemp().getTemp(), c.getObjectId())
                 );
             }
             logger.info("Request will return {} Camaras Info", camarasBrief.size());

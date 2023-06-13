@@ -46,13 +46,33 @@ public class Eventos {
 			this.inicio = inicio;
 			this.duration = 0;
 		}
+
+		public Perigo(Camara camara, Vacina vacina, LeituraTemperatura leituraTemperatura, boolean ativo, Date inicio){
+			super();
+			this.camara = camara;
+			this.vacina = vacina;
+			this.temp = leituraTemperatura.getTemp();
+			this.leituraTemperatura = leituraTemperatura;
+			this.ativo = ativo;
+			this.inicio = inicio;
+			this.duration = 0;
+		}
 		
 		private Camara camara;
 		private Vacina vacina;
 		private float temp;
+		private LeituraTemperatura leituraTemperatura;
 		private boolean ativo;
 		private Date inicio;
 		private long duration;
+
+		public LeituraTemperatura getLeituraTemperatura(){
+			return leituraTemperatura;
+		}
+
+		public void setLeituraTemperatura(LeituraTemperatura leituraTemperatura){
+			this.leituraTemperatura = leituraTemperatura;
+		}
 		
 		public Camara getCamara() {
 			return camara;
@@ -106,6 +126,17 @@ public class Eventos {
 			this.ativo = ativo;
 			this.inicio = inicio;
 		}
+
+		public Alerta(Camara camara, Vacina vacina, Gerente gerente, LeituraTemperatura leituraTemperatura, boolean ativo, Date inicio){
+			super();
+			this.camara = camara;
+			this.vacina = vacina;
+			this.gerente = gerente;
+			this.temp = leituraTemperatura.getTemp();
+			this.leituraTemperatura = leituraTemperatura;
+			this.ativo = ativo;
+			this.inicio = inicio;
+		}
 		
 		private Camara camara;
 		private Vacina vacina;
@@ -114,6 +145,15 @@ public class Eventos {
 		private boolean ativo;
 		private Date inicio;
 		private long duration;
+		private LeituraTemperatura leituraTemperatura;
+
+		public LeituraTemperatura getLeituraTemperatura(){
+			return leituraTemperatura;
+		}
+
+		public void setLeituraTemperatura(LeituraTemperatura leituraTemperatura){
+			this.leituraTemperatura = leituraTemperatura;
+		}
 		
 		public Camara getCamara() {
 			return camara;

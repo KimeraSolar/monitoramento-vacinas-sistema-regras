@@ -6,6 +6,8 @@ import java.util.Random;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
 
+import kimeraSolar.vacinas.domain.Eventos.LeituraTemperatura;
+
 public class TempSensorWrapper implements Runnable {
 
 	KieSession kSession;
@@ -25,7 +27,8 @@ public class TempSensorWrapper implements Runnable {
 		
 		int min = 0, max = 10;
 		Camara c = (Camara) kSession.getObject(fact);
-		c.setTemp(min + rand.nextFloat()*(max - min));
+		LeituraTemperatura leitura = new Eventos.LeituraTemperatura(c, min + rand.nextFloat()*(max - min), new Date());
+		c.setTemp(leitura);
 	}
 	
 	@Override
@@ -34,11 +37,12 @@ public class TempSensorWrapper implements Runnable {
 			try {	
 				Camara c = (Camara) kSession.getObject(fact);
 				if(c.isAtiva()) {
-					c.setTemp(sensor.getSensorValue());
+					LeituraTemperatura leitura = new Eventos.LeituraTemperatura(c, sensor.getSensorValue(), new Date());
+					c.setTemp(leitura);
 					kSession.update(fact, c);
-					kSession.insert( new Eventos.LeituraTemperatura(c, c.getTemp(), new Date()) );
+					kSession.insert( leitura );
 				}
-				System.out.println("Temperatura de " + c.getObjectId() + ": " + c.getTemp());
+				System.out.println("Temperatura de " + c.getObjectId() + ": " + c.getTemp().getTemp());
 				kSession.fireAllRules();
 				
 				Thread.sleep(1000*rand.nextInt(10)+1000);
@@ -119,7 +123,7 @@ public class TempSensorWrapper implements Runnable {
 	
 		public float getSensorValue() {
 			Camara c = (Camara) kSession.getObject(fact);
-			float val = c.getTemp();
+			float val = c.getTemp().getTemp();
 			if (c.isAtiva()) {
 				val = val - (float) 0.5;
 				val = Math.max(val, minValue);
@@ -166,7 +170,7 @@ public class TempSensorWrapper implements Runnable {
 		
 		public float getSensorValue() {
 			Camara c = (Camara) kSession.getObject(fact);
-			float val = c.getTemp();
+			float val = c.getTemp().getTemp();
 			if (c.isAtiva()) {
 				val = val + (float) 0.5;
 				val = Math.min(val, maxValue);
@@ -217,7 +221,7 @@ public class TempSensorWrapper implements Runnable {
 		
 		public float getSensorValue() {
 			Camara c = (Camara) kSession.getObject(fact);
-			float val = c.getTemp();
+			float val = c.getTemp().getTemp();
 			if (c.isAtiva()) {
 				float var_min = (float) -0.5, var_max = (float) 0.5;
 				val = val + (var_min + rand.nextFloat() * (var_max - var_min));

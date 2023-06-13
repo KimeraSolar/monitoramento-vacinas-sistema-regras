@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import kimeraSolar.vacinas.backend.configuration.CamarasConfiguration;
 import kimeraSolar.vacinas.domain.Camara;
 import kimeraSolar.vacinas.domain.Vacina;
+import kimeraSolar.vacinas.domain.Eventos.LeituraTemperatura;
 
 @RestController
 @RequestMapping("/vacinas")
@@ -47,9 +48,9 @@ public class CamaraController {
         try{
             temperaturas = new ArrayList<>();
             Camara c = camarasConfiguration.getCamaras().get(camaraId);
-            for( Map.Entry<Date, Float> temperatura : c.getTemperaturas().entrySet()){
+            for( Map.Entry<Date, LeituraTemperatura> temperatura : c.getTemperaturas().entrySet()){
                 temperaturas.add(
-                    new TemperaturaObject(temperatura.getKey(), temperatura.getValue())
+                    new TemperaturaObject(temperatura.getKey(), temperatura.getValue().getTemp())
                 );
             }
             logger.info("Request will return {} Temperaturas Info", temperaturas.size());

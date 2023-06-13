@@ -11,6 +11,7 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 
+import kimeraSolar.ruleEngineManagement.domain.WorkingMemory;
 import kimeraSolar.vacinas.backend.configuration.CamarasConfiguration;
 import kimeraSolar.vacinas.backend.configuration.GerentesConfiguration;
 import kimeraSolar.vacinas.domain.Camara;
@@ -23,7 +24,6 @@ import kimeraSolar.vacinas.services.RuleEngine;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.kie.api.definition.rule.Rule;
-import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -44,18 +44,18 @@ public class DroolsTest implements CommandLineRunner {
 
 		RuleEngine.startEngine(args);
 
+		System.out.println("Inicializando Working Memory do MonitoraVax...");
+		System.out.println("Regras inicializadas:");
+
         for(Rule rule : RuleEngine.ruleEngineManagement.listRules()){
             System.out.println(rule.toString());
         }
 
-		KieSession kSession = RuleEngine.ruleEngineManagement.getWorkingMemory().getKieSession();
+		WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
     	
         try {
         	// load up the knowledge base        	
-	        //KieServices ks = KieServices.Factory.get();
-    	    //KieContainer kContainer = ks.getKieClasspathContainer();
-        	//KieSession kSession = kContainer.newKieSession("ksession-rules");
-        	
+	        
         	Map<String, Vacina.TipoVacina> tipos = new HashMap<String,Vacina.TipoVacina>();
         	Map<String, String> gpsMode = new HashMap<String, String>();
         	Map<String, String> tempMode = new HashMap<String, String>();
@@ -108,7 +108,7 @@ public class DroolsTest implements CommandLineRunner {
         		String c = n.getNamedItem("camara").getTextContent();
         		
         		Vacina v = new Vacina(tipos.get(tipo), new Date(), null, false);
-        		kSession.insert(v);
+        		RuleEngine.ruleEngineManagement.insertFact(v);
         		camarasConfiguration.getCamaras().get(c).addVacina(v);
         	}
         	
@@ -129,17 +129,17 @@ public class DroolsTest implements CommandLineRunner {
         	int sensorid = 0;
             for (Map.Entry<String, Camara> entry : camarasConfiguration.getCamaras().entrySet()) {
             	Camara c = entry.getValue();
-            	FactHandle f = kSession.insert(c);
-            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), kSession, f, gpsMode.get(entry.getKey()))));
+            	FactHandle f = workingMemory.getKieSession().insert(c);
+            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()))));
             	sensorid += 1;
-            	threads.add(new Thread(new TempSensorWrapper("s" + String.format("%01d", sensorid), kSession, f, tempMode.get(entry.getKey()))));
+            	threads.add(new Thread(new TempSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, tempMode.get(entry.getKey()))));
             	sensorid += 1;
             }
             
             for (Map.Entry<String, Gerente> entry : gerentesConfiguration.getGerentes().entrySet()) {
             	Gerente g = entry.getValue();
-            	FactHandle f = kSession.insert(g);
-            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), kSession, f, gpsMode.get(entry.getKey()))));
+            	FactHandle f = workingMemory.getKieSession().insert(g);
+            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()))));
             	sensorid += 1;
             }
             
