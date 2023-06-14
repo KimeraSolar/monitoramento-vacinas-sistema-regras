@@ -13,24 +13,23 @@ import org.kie.api.event.rule.ObjectInsertedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kimeraSolar.vacinas.domain.Eventos.Alerta;
+import kimeraSolar.vacinas.domain.Eventos.Perigo;
 
-public class AlertaListener extends DefaultRuleRuntimeEventListener{
+public class PerigoListener extends DefaultRuleRuntimeEventListener {
+    Logger logger = LoggerFactory.getLogger(PerigoListener.class);
 
-    Logger logger = LoggerFactory.getLogger(AlertaListener.class);
-
-    List<Pair<Timestamp, Timestamp>> alertas = new LinkedList<>();
+    List<Pair<Timestamp, Timestamp>> perigos = new LinkedList<>();
     
     @Override
     public void objectInserted(ObjectInsertedEvent event){
-        if(event.getObject() instanceof Alerta){
-            Alerta insertedAlerta = (Alerta) event.getObject();
+        if(event.getObject() instanceof Perigo){
+            Perigo insertedPerigo = (Perigo) event.getObject();
 
-            alertas.add(Pair.of(insertedAlerta.getLeituraTemperatura().getInicio(), insertedAlerta.getInicio()));
+            perigos.add(Pair.of(insertedPerigo.getLeituraTemperatura().getInicio(), insertedPerigo.getInicio()));
 
-            logger.info("Novo Alerta: ");
-            logger.info(insertedAlerta.getLeituraTemperatura().getInicio().toString());
-            logger.info(insertedAlerta.getInicio().toString());
+            logger.info("Novo Perigo: ");
+            logger.info(insertedPerigo.getLeituraTemperatura().getInicio().toString());
+            logger.info(insertedPerigo.getInicio().toString());
         }
     } 
 
@@ -38,7 +37,7 @@ public class AlertaListener extends DefaultRuleRuntimeEventListener{
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(file_name));
             writer.write("Timestamp Leitura,Timestamp Alerta\n");
-            for (Pair<Timestamp, Timestamp> p : this.alertas){
+            for (Pair<Timestamp, Timestamp> p : this.perigos){
                 writer.write(p.getLeft() + "," + p.getRight() + "\n");
             }
             writer.close();
@@ -46,4 +45,5 @@ public class AlertaListener extends DefaultRuleRuntimeEventListener{
             e.printStackTrace();
         }
     }
+
 }

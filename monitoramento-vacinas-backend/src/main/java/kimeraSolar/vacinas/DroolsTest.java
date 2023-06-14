@@ -22,6 +22,7 @@ import kimeraSolar.vacinas.domain.Vacina;
 import kimeraSolar.vacinas.domain.MovingObject.Location;
 import kimeraSolar.vacinas.services.RuleEngine;
 import kimeraSolar.vacinas.services.listeners.AlertaListener;
+import kimeraSolar.vacinas.services.listeners.PerigoListener;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -164,7 +165,7 @@ public class DroolsTest implements CommandLineRunner {
             }
             
 			for (Thread t : threads){
-				t.join();
+				t.join(10000);
 			}
         } catch (Throwable t) {
             t.printStackTrace();
@@ -173,7 +174,12 @@ public class DroolsTest implements CommandLineRunner {
 
 	public void test_02(String... args){
 		WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
-    	workingMemory.getKieSession().addEventListener(new AlertaListener());
+		AlertaListener alertaListener = new AlertaListener();
+		PerigoListener perigoListener = new PerigoListener();
+    	workingMemory.getKieSession().addEventListener(alertaListener);
+		workingMemory.getKieSession().addEventListener(perigoListener);
 		test_01(args);
+		alertaListener.writeReport("teste_alertas.csv");
+		perigoListener.writeReport("teste_perigos.csv");
 	}
 }
