@@ -156,7 +156,6 @@ public class RegrasMonitoramento {
             .append("\tnot (exists ( Perigo( $vacina == vacina, ativo == true) ) )\n")
             .append("then\n")
             .append("\tinsert(new Perigo( $camara, $vacina, $temp, true, new Timestamp(System.currentTimeMillis())) );\n")
-            .append("\tSystem.out.println(\"Temperatura perto dos limites da vacina \" + $vacina.getTipo().getNome() +\": \" + $camara.getObjectId() + \" \" + $temp.getTemp() + \"ºC.\");\n")
             .append("\t$camara.sendMessage(\"A Câmara \" + $camara.getObjectId() + \" está com temperatura \" + $temp.getTemp() + \"ºC muito perto dos limites para a vacina \" + $vacina.getTipo().getNome() + \".\");\n") 
             .append("\t$camara.setPerigo(true);\n")
             .append("\tupdate( $camara );\n")
@@ -181,7 +180,6 @@ public class RegrasMonitoramento {
         .append("    $perigo.setAtivo( false );\n")
         .append("    $perigo.setDuration( System.currentTimeMillis() - $inicio.getTime() );\n")
         .append("    update( $perigo );\n")
-        .append("    System.out.println(\"Temperatura normalizada para vacina \" + $vacina.getTipo().getNome() +\": \" + $camara.getObjectId() + \" \" + $temp.getTemp() + \"ºC.\");\n")
         .append("    $camara.sendMessage(\"A Câmara \" + $camara.getObjectId() + \" está com temperatura \" + $temp.getTemp() + \" fora de perigo para a vacina \" + $vacina.getTipo().getNome() + \".\");\n")
         .append("    $camara.setPerigo(false);\n")
         .append("    update( $camara );\n")
@@ -213,7 +211,6 @@ public class RegrasMonitoramento {
             .append("    not ( exists ( Alerta( $vacina == vacina, ativo == true ) ) )\n")
             .append("then\n")
             .append("    insert ( new Alerta($camara, $vacina, $camara.gerenteMaisProx(), $temp, true, new Timestamp(System.currentTimeMillis())) );\n")
-            .append("    System.out.println(\"Temperatura fora dos limites para vacina \" + $vacina.getTipo().getNome() +\": \" + $camara.getObjectId() + \" \" + $temp.getTemp() + \"ºC.\");\n")
             .append("    $camara.gerenteMaisProx().sendMensagem(	\"Alerta na Câmara \" + $camara.getObjectId() + \" com temperatura \" + $temp.getTemp() + \" fora dos limites para a vacina \" + $vacina.getTipo().getNome() +\n")
             .append("                            \". Favor comparecer no local \" + $camara.getLocal() + \" imediatamente.\");\n")
             .append("    $camara.setAlerta(true);\n")
@@ -239,7 +236,6 @@ public class RegrasMonitoramento {
             .append("    $alerta.setAtivo(false);\n")
             .append("    $alerta.setDuration( System.currentTimeMillis() - $inicio.getTime() );\n")
             .append("    update( $alerta );\n")
-            .append("    System.out.println(\"Temperatura dentro dos limites para vacina \" + $vacina.getTipo().getNome() +\": \" + $camara.getObjectId() + \" \" + $temp.getTemp() + \"ºC.\");\n")
             .append("    $gerente.sendMensagem(\"A Câmara \" + $camara.getObjectId() + \" está com temperatura \" + $temp.getTemp() + \" fora de alerta para a vacina \" + $vacina.getTipo().getNome() + \".\");\n")
             .append("    $camara.setAlerta(false);\n")
             .append("    update( $camara );\n")
@@ -276,7 +272,6 @@ public class RegrasMonitoramento {
             .append("    insert ( new Descarte($alerta, new Timestamp(System.currentTimeMillis())) );\n")
             .append("    $vacina.setDescartada(true);\n")
             .append("    update($vacina);\n")
-            .append("    System.out.println(\"Descarte sugerido para vacina \" + $vacina.getTipo().getNome() + \": \" +  $camara.getObjectId() + \".\");\n")
             .append("    $gerente.sendMensagem(\"Tempo de alerta excedido, descarte sugerido para vacina \" + $vacina.getTipo().getNome() + \" na câmara \" + $camara.getObjectId() + \".\");\n")
             .append("end\n");
         riseDescarteRuleJsonObject.put("source", riseDescarteRuleStringBuilder.toString());
@@ -311,7 +306,6 @@ public class RegrasMonitoramento {
             .append("    not( exists( ManutencaoNecessariaCamara( $camara == camara, ativo == true ) ) )\n")
             .append("then\n")
             .append("    insert(new ManutencaoNecessariaCamara( $camara, true ) );\n")
-            .append("    System.out.println(\"Manutenção sugerida: \"  + $camara.getObjectId() + \" após \" + ($casosPerigo.intValue() + $casosAlerta.intValue()) + \" casos de perigo e/ou alerta nos últimos 1m.\");\n")
             .append("    $camara.sendMessage(\"Manutenção sugerida na unidade \" + $camara.getObjectId() + \" após \" + ($casosPerigo.intValue() + $casosAlerta.intValue()) + \" casos de perigo e/ou alerta nos últimos 1m.\");\n")
             .append("end\n");
         riseManutencaoCamaraRuleJsonObject.put("source", riseManutencaoCamaraStringBuilder.toString());
@@ -338,7 +332,6 @@ public class RegrasMonitoramento {
             .append("then\n")
             .append("    $manutencao.setAtivo( false );\n")
             .append("    update($manutencao);\n")
-            .append("    System.out.println(\"Sem necessidade de manutenção na unidade \" + $camara.getObjectId() + \" após \" + ($casosPerigo.intValue() + $casosAlerta.intValue()) + \" casos de perigo e/ou alerta nos últimos 1m.\");\n")
             .append("    $camara.sendMessage(\"Sem necessidade de manutenção na unidade \" + $camara.getObjectId() + \" após \" + ($casosPerigo.intValue() + $casosAlerta.intValue()) + \" casos de perigo e/ou alerta nos últimos 1m.\");\n")
             .append("end\n");
         retractManutencaoCamaraJsonObject.put("source", retractManutencaoCamaraStringBuilder.toString());
@@ -367,7 +360,6 @@ public class RegrasMonitoramento {
             .append("    not( exists ( VariacaoBruscaTemp( $tempFinal == tempFinal, $tempInicial == tempInicial ) ) )\n")
             .append("then\n")
             .append("    insert( new VariacaoBruscaTemp( $camara, $tempInicial, $tempFinal ) );\n")
-            .append("    System.out.println(\"Variação brusca de temperatura na câmara \" + $camara.getObjectId() + \" com variação de \" + ($tempF - $tempI) + \" em menos de 10s.\");\n")
             .append("    $camara.sendMessage(\"Variação brusca de temperatura na câmara \" + $camara.getObjectId() + \" com variação de \" + ($tempF - $tempI) + \" em menos de 10s.\"); \n")
             .append("end\n");
         riseVariacaoJsonObject.put("source", riseVariacaoStringBuilder.toString());
@@ -398,7 +390,6 @@ public class RegrasMonitoramento {
             .append("    not( exists( ManutencaoNecessariaSensores( $camara == camara, ativo == true ) ) )\n")
             .append("then\n")
             .append("    insert(new ManutencaoNecessariaSensores( $camara, true ) );\n")
-            .append("    System.out.println(\"Manutenção sugerida nos sensores da unidade \" + $camara.getObjectId() + \" após \" + $casosVariacaoBrusca.intValue() + \" casos de variação brusca de temperatura em 1m.\");\n")
             .append("    $camara.sendMessage(\"Manutenção sugerida nos sensores da unidade \" + $camara.getObjectId() + \" após \" + $casosVariacaoBrusca.intValue() + \" casos de variação brusca de temperatura em 1m.\");\n")
             .append("end\n");
         riseManutencaoJsonObject.put("source", riseManutencaoStringBuilder.toString());
@@ -421,7 +412,6 @@ public class RegrasMonitoramento {
             .append("then\n")
             .append("    $manutencao.setAtivo( false );\n")
             .append("    update($manutencao);\n")
-            .append("    System.out.println(\"Sem necessidade de manutenção dos sensores na unidade \" + $camara.getObjectId() + \" após \" + $casosVariacaoBrusca.intValue() + \" casos de variação brusca de temperatura nos últimos 1m.\");\n")
             .append("    $camara.sendMessage(\"Sem necessidade de manutenção dos sensores na unidade \" + $camara.getObjectId() + \" após \" + $casosVariacaoBrusca.intValue() + \" casos de variação brusca de temperatura nos últimos 1m.\");\n")
             .append("end\n");
         retractManutencaoJsonObject.put("source", retractManutencaoStringBuilder.toString());

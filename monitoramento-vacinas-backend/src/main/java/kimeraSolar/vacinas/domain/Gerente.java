@@ -6,11 +6,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Gerente extends MovingObject {
 	
 	private String nome;
 	private List<Camara> camaras;
 	private Map<Date, String> mensagens;
+
+	Logger logger = LoggerFactory.getLogger(Gerente.class);
 	
 	public Gerente(String id, String nome) {
 		super();
@@ -30,6 +35,7 @@ public class Gerente extends MovingObject {
 	
 	public void sendMensagem(String m) {
 		this.mensagens.put(new Date(), m);
+		// logger.info("Mensagem recebida pelo gerente" + this.nome + ": " + m);
 	}
 
 	public List<Camara> getCamaras() {

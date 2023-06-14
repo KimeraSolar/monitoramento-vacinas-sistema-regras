@@ -5,6 +5,8 @@ import java.util.Random;
 
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kimeraSolar.vacinas.domain.Eventos.LeituraTemperatura;
 
@@ -16,6 +18,8 @@ public class TempSensorWrapper implements Runnable {
 	String sensorId;
 	String opMode;
 	SensorBehaviour sensor;
+
+	Logger logger = LoggerFactory.getLogger(TempSensorWrapper.class);
 	
 	public TempSensorWrapper(String id, KieSession k, FactHandle f, String mode) {
 		super();
@@ -42,7 +46,7 @@ public class TempSensorWrapper implements Runnable {
 					kSession.update(fact, c);
 					kSession.insert( leitura );
 				}
-				System.out.println("Temperatura de " + c.getObjectId() + ": " + c.getTemp().getTemp());
+				// logger.info("Temperatura de " + c.getObjectId() + ": " + c.getTemp().getTemp());
 				kSession.fireAllRules();
 				
 				Thread.sleep(1000*rand.nextInt(10)+1000);
