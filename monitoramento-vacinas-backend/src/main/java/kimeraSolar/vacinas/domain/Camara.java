@@ -14,6 +14,8 @@ public class Camara extends MovingObject {
 	private List<Gerente> gerentes;
 	private Map<Date, LeituraTemperatura> temperaturas;
 	private boolean ativa;
+	private boolean hasPerigo;
+	private boolean hasAlerta;
 	
 	public Camara(String id) {
 		super();
@@ -21,7 +23,24 @@ public class Camara extends MovingObject {
 		this.gerentes = new LinkedList<Gerente>();
 		this.vacinas = new LinkedList<Vacina>();
 		this.ativa = false;
+		this.hasAlerta = false;
+		this.hasPerigo = false;
 		this.temperaturas = new HashMap<Date, LeituraTemperatura>();
+	}
+
+	public void setPerigo(boolean perigo){
+		this.hasPerigo = perigo;
+	}
+
+	public void setAlerta(boolean alerta){
+		this.hasAlerta = alerta;
+	}
+
+	public String getStatus(){
+		if(!this.isAtiva()) return "Inativa";
+		if(this.hasPerigo) return "Perigo";
+		if(this.hasAlerta) return "Alerta";
+		return "Normal";
 	}
 
 	public LeituraTemperatura getTemp() {
@@ -39,17 +58,22 @@ public class Camara extends MovingObject {
 
 	public void setVacinas(List<Vacina> vacinas) {
 		this.vacinas = vacinas;
-		this.ativa = this.vacinas.isEmpty() ? false : true;
+		this.setAtiva(this.vacinas.isEmpty() ? false : true);
 	}
 	
 	public void addVacina(Vacina v) {
 		this.vacinas.add(v);
-		this.ativa = true;
+		this.setAtiva(true);
 	}
 	
 	public void removeVacina(Vacina v) {
 		this.vacinas.remove(v);
-		this.ativa = this.vacinas.isEmpty() ? false : true;
+		this.setAtiva(this.vacinas.isEmpty() ? false : true);
+		
+	}
+
+	public void setAtiva(Boolean ativa){
+		this.ativa = ativa;
 	}
 	
 	public boolean isAtiva() {

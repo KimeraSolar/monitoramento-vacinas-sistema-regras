@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,20 +63,22 @@ public class CamaraController {
 
     public static class VacinaBrief{
 			
-        public VacinaBrief(String nome, float tempMax, float tempMin, Date abastecimento, boolean descartada) {
+        public VacinaBrief(String nome, float tempMax, float tempMin, Date abastecimento, String status) {
             super();
-            this.nome = nome;
+            this.name = nome;
             this.tempMax = tempMax;
             this.tempMin = tempMin;
-            this.abastecimento = abastecimento;
-            this.descartada = descartada;
+            this.abastecimentoDate = abastecimento;
+            this.vencimentoDate = DateUtils.addDays(abastecimento, 30);
+            this.status = status;
         }
         
-        public String nome;
+        public String name;
         public float tempMax;
         public float tempMin;
-        public Date abastecimento;
-        public boolean descartada;
+        public Date abastecimentoDate;
+        public Date vencimentoDate;
+        public String status;
     
     }
 
@@ -89,7 +92,7 @@ public class CamaraController {
             for( Vacina v : c.getVacinas()){
                 Vacina.TipoVacina t = v.getTipo();
                 vacinas.add( 
-                    new VacinaBrief(t.getNome(), (float) t.getTempMax(), (float) t.getTempMin(), v.getAbastecimento(), v.isDescartada())
+                    new VacinaBrief(t.getNome(), (float) t.getTempMax(), (float) t.getTempMin(), v.getAbastecimento(), v.getStatus())
                 );
             }
             logger.info("Request will return {} Vacinas Info", vacinas.size());

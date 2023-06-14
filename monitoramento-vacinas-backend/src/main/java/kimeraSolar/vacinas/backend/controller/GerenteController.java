@@ -32,14 +32,14 @@ public class GerenteController {
     }
 
     public static class CamaraBrief{
-        public CamaraBrief(boolean ativo, float temperatura, String id, float[] location) {
+        public CamaraBrief(String status, float temperatura, String id, float[] location) {
             super();
-            this.camaraStatus = ativo;
+            this.camaraStatus = status;
             this.camaraTemperature = temperatura;
             this.camaraName = id;
             this.camaraLocation = location;
         }
-        public boolean camaraStatus;
+        public String camaraStatus;
         public float camaraTemperature;
         public String camaraName;
         public float[] camaraLocation;
@@ -56,7 +56,7 @@ public class GerenteController {
             for(Camara c : g.getCamaras()){
                 float[] location = {c.getLocal().getLatitude(), c.getLocal().getLongitude()};
                 camarasBrief.add(
-                    new CamaraBrief(c.isAtiva(), c.getTemp().getTemp(), c.getObjectId(), location )
+                    new CamaraBrief(c.getStatus(), c.getTemp().getTemp(), c.getObjectId(), location )
                 );
             }
             logger.info("Request will return {} Camaras Info", camarasBrief.size());

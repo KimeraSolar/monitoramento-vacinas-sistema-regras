@@ -8,6 +8,8 @@ public class Vacina {
 	private Date abastecimento;
 	private Date retirada;
 	private boolean descartada;
+	private boolean hasPerigo;
+	private boolean hasAlerta;
 
 	
 	public Vacina(TipoVacina tipo, Date abastecimento, Date retirada, boolean descartada) {
@@ -16,7 +18,25 @@ public class Vacina {
 		this.abastecimento = abastecimento;
 		this.retirada = retirada;
 		this.descartada = descartada;
+		this.hasAlerta = false;
+		this.hasPerigo = false;
 	}
+
+	public void setPerigo(boolean perigo){
+		this.hasPerigo = perigo;
+	}
+
+	public void setAlerta(boolean alerta){
+		this.hasAlerta = alerta;
+	}
+
+	public String getStatus(){
+		if(this.isDescartada()) return "Descartada";
+		if(this.hasPerigo) return "Perigo";
+		if(this.hasAlerta) return "Alerta";
+		return "Normal";
+	}
+
 	
 	public static class TipoVacina{
 

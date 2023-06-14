@@ -158,6 +158,10 @@ public class RegrasMonitoramento {
             .append("\tinsert(new Perigo( $camara, $vacina, $temp, true, new Date()) );\n")
             .append("\tSystem.out.println(\"Temperatura perto dos limites da vacina \" + $vacina.getTipo().getNome() +\": \" + $camara.getObjectId() + \" \" + $temp.getTemp() + \"ºC.\");\n")
             .append("\t$camara.sendMessage(\"A Câmara \" + $camara.getObjectId() + \" está com temperatura \" + $temp.getTemp() + \"ºC muito perto dos limites para a vacina \" + $vacina.getTipo().getNome() + \".\");\n") 
+            .append("\t$camara.setPerigo(true);\n")
+            .append("\tupdate( $camara );\n")
+            .append("    $vacina.setPerigo(true);\n")
+            .append("    update( $vacina );\n")
             .append("end\n");
 
         jsonPerigoRule.put("source", perigoRuleStringBuilder.toString());
@@ -179,6 +183,10 @@ public class RegrasMonitoramento {
         .append("    update( $perigo );\n")
         .append("    System.out.println(\"Temperatura normalizada para vacina \" + $vacina.getTipo().getNome() +\": \" + $camara.getObjectId() + \" \" + $temp.getTemp() + \"ºC.\");\n")
         .append("    $camara.sendMessage(\"A Câmara \" + $camara.getObjectId() + \" está com temperatura \" + $temp.getTemp() + \" fora de perigo para a vacina \" + $vacina.getTipo().getNome() + \".\");\n")
+        .append("    $camara.setPerigo(false);\n")
+        .append("    update( $camara );\n")
+        .append("    $vacina.setPerigo(false);\n")
+        .append("    update( $vacina );\n")
         .append("end\n");
 
         jsonSemPerigoRule.put("source", semPerigoRuleStirngStringBuilder.toString());
@@ -208,6 +216,10 @@ public class RegrasMonitoramento {
             .append("    System.out.println(\"Temperatura fora dos limites para vacina \" + $vacina.getTipo().getNome() +\": \" + $camara.getObjectId() + \" \" + $temp.getTemp() + \"ºC.\");\n")
             .append("    $camara.gerenteMaisProx().sendMensagem(	\"Alerta na Câmara \" + $camara.getObjectId() + \" com temperatura \" + $temp.getTemp() + \" fora dos limites para a vacina \" + $vacina.getTipo().getNome() +\n")
             .append("                            \". Favor comparecer no local \" + $camara.getLocal() + \" imediatamente.\");\n")
+            .append("    $camara.setAlerta(true);\n")
+            .append("    update( $camara );\n")
+            .append("    $vacina.setAlerta(true);\n")
+            .append("    update( $vacina );\n")
             .append("end\n");
         
         jsonRiseAlertaRule.put("source", riseAlertaRuleStringBuilder.toString());
@@ -229,6 +241,10 @@ public class RegrasMonitoramento {
             .append("    update( $alerta );\n")
             .append("    System.out.println(\"Temperatura dentro dos limites para vacina \" + $vacina.getTipo().getNome() +\": \" + $camara.getObjectId() + \" \" + $temp.getTemp() + \"ºC.\");\n")
             .append("    $gerente.sendMensagem(\"A Câmara \" + $camara.getObjectId() + \" está com temperatura \" + $temp.getTemp() + \" fora de alerta para a vacina \" + $vacina.getTipo().getNome() + \".\");\n")
+            .append("    $camara.setAlerta(false);\n")
+            .append("    update( $camara );\n")
+            .append("    $vacina.setAlerta(false);\n")
+            .append("    update( $vacina );\n")
             .append("end\n");
         
         jsonRetractAlertaRule.put("source", retractAlertaRuleStringBuilder.toString());
