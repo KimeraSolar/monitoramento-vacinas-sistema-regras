@@ -37,19 +37,27 @@ public class DroolsTest implements CommandLineRunner {
 
 	@Autowired
 	private CamarasConfiguration camarasConfiguration;
-	
-	public final String INPUT_FILE = "config/teste_01.xml";
 
     public void run(String... args) {
+		test_01(args);
+	}
 
-		RuleEngine.startEngine(args);
-
+	static public void test_engine( String[] args){
 		System.out.println("Inicializando Working Memory do MonitoraVax...");
 		System.out.println("Regras inicializadas:");
+
+        RuleEngine.startEngine(args);
 
         for(Rule rule : RuleEngine.ruleEngineManagement.listRules()){
             System.out.println(rule.toString());
         }
+    }
+
+	public void test_01(String... args){
+
+		String INPUT_FILE = "config/teste_01.xml";
+
+		test_engine(args);
 
 		WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
     	
