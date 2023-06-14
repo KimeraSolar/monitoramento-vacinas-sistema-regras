@@ -19,6 +19,7 @@ import kimeraSolar.vacinas.domain.Gerente;
 import kimeraSolar.vacinas.domain.GpsSensorWrapper;
 import kimeraSolar.vacinas.domain.TempSensorWrapper;
 import kimeraSolar.vacinas.domain.Vacina;
+import kimeraSolar.vacinas.domain.MovingObject.Location;
 import kimeraSolar.vacinas.services.RuleEngine;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -43,14 +44,16 @@ public class DroolsTest implements CommandLineRunner {
 	}
 
 	static public void test_engine( String[] args){
+		
+		RuleEngine.startEngine(args);
+		
 		System.out.println("Inicializando Working Memory do MonitoraVax...");
 		System.out.println("Regras inicializadas:");
-
-        RuleEngine.startEngine(args);
-
+		
         for(Rule rule : RuleEngine.ruleEngineManagement.listRules()){
             System.out.println(rule.toString());
         }
+
     }
 
 	public void test_01(String... args){
@@ -90,8 +93,10 @@ public class DroolsTest implements CommandLineRunner {
         		String nome = n.getNamedItem("nome").getTextContent();
         		String id = n.getNamedItem("id").getTextContent();
         		String mode = n.getNamedItem("gps-sensor-mode").getTextContent();
+				String[] initial_location = n.getNamedItem("gps-sensor-initial-location").getTextContent().split(",");
         		
         		Gerente g = new Gerente(id, nome);
+				g.setLocal(new Location(Float.parseFloat(initial_location[0]), Float.parseFloat(initial_location[1])));
         		gerentesConfiguration.addGerente(g);
         		gpsMode.put(id, mode);
         	}
@@ -102,9 +107,12 @@ public class DroolsTest implements CommandLineRunner {
         		String id = n.getNamedItem("id").getTextContent();
         		String gps = n.getNamedItem("gps-sensor-mode").getTextContent();
         		String temp = n.getNamedItem("temp-sensor-mode").getTextContent();
+				String[] initial_location = n.getNamedItem("gps-sensor-initial-location").getTextContent().split(",");
         		
+
         		Camara c = new Camara(id);
-        		camarasConfiguration.addCamara(c);
+				c.setLocal(new Location(Float.parseFloat(initial_location[0]), Float.parseFloat(initial_location[1])));
+				camarasConfiguration.addCamara(c);
         		gpsMode.put(id, gps);
         		tempMode.put(id, temp);
         	}
@@ -138,7 +146,7 @@ public class DroolsTest implements CommandLineRunner {
             for (Map.Entry<String, Camara> entry : camarasConfiguration.getCamaras().entrySet()) {
             	Camara c = entry.getValue();
             	FactHandle f = workingMemory.getKieSession().insert(c);
-            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()))));
+            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()), c.getLocal())));
             	sensorid += 1;
             	threads.add(new Thread(new TempSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, tempMode.get(entry.getKey()))));
             	sensorid += 1;
@@ -147,7 +155,7 @@ public class DroolsTest implements CommandLineRunner {
             for (Map.Entry<String, Gerente> entry : gerentesConfiguration.getGerentes().entrySet()) {
             	Gerente g = entry.getValue();
             	FactHandle f = workingMemory.getKieSession().insert(g);
-            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()))));
+            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()), g.getLocal())));
             	sensorid += 1;
             }
             

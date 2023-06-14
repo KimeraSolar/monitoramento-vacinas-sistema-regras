@@ -5,6 +5,8 @@ import java.util.Random;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
 
+import kimeraSolar.vacinas.domain.MovingObject.Location;
+
 public class GpsSensorWrapper implements Runnable {
 	
 	KieSession kSession;
@@ -13,6 +15,7 @@ public class GpsSensorWrapper implements Runnable {
 	String sensorId;
 	String opMode;
 	SensorBehaviour sensor;
+	Location initialLocation;
 	
 	public GpsSensorWrapper(String id, KieSession k, FactHandle f, String mode) {
 		super();
@@ -20,6 +23,16 @@ public class GpsSensorWrapper implements Runnable {
 		kSession = k;
 		fact = f;
 		rand = new Random();
+		this.setOpMode(mode);
+	}
+
+	public GpsSensorWrapper(String id, KieSession k, FactHandle f, String mode, Location initialLocation){
+		super();
+		this.sensorId = id;
+		this.kSession = k;
+		this.fact = f;
+		this.initialLocation = initialLocation;
+		this.rand = new Random();
 		this.setOpMode(mode);
 	}
 	
@@ -47,7 +60,11 @@ public class GpsSensorWrapper implements Runnable {
 	public void setOpMode(String mode) {
 		opMode = mode;
 		if(opMode.equals("static")) {
-			sensor = new StaticSensor(-10,10,-20,20,rand);
+			if(initialLocation != null){
+				sensor = new StaticSensor(initialLocation.getLatitude(), initialLocation.getLongitude());
+			}else{
+				sensor = new StaticSensor(-10,10,-20,20,rand);
+			}			
 		}else {
 			sensor = new RandomSensor(-10,10,-20,20,rand);
 		}
@@ -63,6 +80,10 @@ public class GpsSensorWrapper implements Runnable {
 			float latitude = (float) (min_lat + rand.nextDouble() * (max_lat - min_lat));
 			float longitude = (float) (min_lon + rand.nextDouble() * (max_lon - min_lon));
 			this.location = new MovingObject.Location(latitude, longitude);
+		}
+
+		public StaticSensor(float initial_latitude, float initial_longitude){
+			this.location = new MovingObject.Location(initial_latitude, initial_longitude);
 		}
 
 		private MovingObject.Location location;

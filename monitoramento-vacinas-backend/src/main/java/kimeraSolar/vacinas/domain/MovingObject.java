@@ -7,8 +7,8 @@ public abstract class MovingObject {
 		float latitude;
 		
 		public Location(float l1, float l2) {
-			longitude = l1;
-			latitude = l2;
+			latitude = l1;
+			longitude = l2;
 		}
 		
 		public void setLatitude(float l) {
@@ -53,7 +53,7 @@ public abstract class MovingObject {
 	private Location local;
 	private String objectId;
 	
-	public void setLocal(float longitude, float latitude) {
+	public void setLocal(float latitude, float longitude) {
 		this.local.setLatitude(latitude);
 		this.local.setLongitude(longitude);
 	}
