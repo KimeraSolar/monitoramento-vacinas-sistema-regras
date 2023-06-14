@@ -34,7 +34,7 @@ public class Vacina {
 		if(this.isDescartada()) return "Descartada";
 		if(this.hasPerigo) return "Perigo";
 		if(this.hasAlerta) return "Alerta";
-		return "Normal";
+		return "Apropriada";
 	}
 
 	
