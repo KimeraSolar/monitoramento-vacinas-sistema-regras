@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import kimeraSolar.vacinas.backend.configuration.CamarasConfiguration;
+import kimeraSolar.vacinas.backend.schemas.CamaraSchema;
+import kimeraSolar.vacinas.backend.schemas.VacinaSchema;
 import kimeraSolar.vacinas.domain.Camara;
 import kimeraSolar.vacinas.domain.Vacina;
 import kimeraSolar.vacinas.domain.Eventos.LeituraTemperatura;
@@ -22,8 +23,6 @@ import kimeraSolar.vacinas.domain.Eventos.LeituraTemperatura;
 @RestController
 @RequestMapping("/vacinas")
 public class CamaraController {
-
-    
 
     Logger logger = LoggerFactory.getLogger(CamaraController.class);
 
@@ -39,6 +38,22 @@ public class CamaraController {
 
         public Date key;
         public Float value;
+    }
+
+    @GetMapping("/{camaraid}")
+    public CamaraSchema getCamaraInfo(@PathVariable("camaraid") String camaraId){
+        logger.info("Requesting Info from Camara {}", camaraId);
+        CamaraSchema response = null;
+        try{
+            Camara c = camarasConfiguration.getCamaras().get(camaraId);
+            float[] location = {c.getLocal().getLatitude(), c.getLocal().getLongitude()};
+                
+            response = new CamaraSchema(c.getStatus(), c.getTemp().getTemp(), c.getObjectId(), location );
+                
+        }catch(NullPointerException exception){
+            logger.warn("Request Failed for Camara", camaraId);
+        }
+        return response;
     }
 
     @GetMapping("/{camaraid}/temperaturas")
@@ -61,38 +76,17 @@ public class CamaraController {
         return temperaturas;
     }
 
-    public static class VacinaBrief{
-			
-        public VacinaBrief(String nome, float tempMax, float tempMin, Date abastecimento, String status) {
-            super();
-            this.name = nome;
-            this.tempMax = tempMax;
-            this.tempMin = tempMin;
-            this.abastecimentoDate = abastecimento;
-            this.vencimentoDate = DateUtils.addDays(abastecimento, 30);
-            this.status = status;
-        }
-        
-        public String name;
-        public float tempMax;
-        public float tempMin;
-        public Date abastecimentoDate;
-        public Date vencimentoDate;
-        public String status;
-    
-    }
-
     @GetMapping("/{camaraid}/vacinas")
-    public List<VacinaBrief> getVacinas(@PathVariable("camaraid") String camaraId){
+    public List<VacinaSchema> getVacinas(@PathVariable("camaraid") String camaraId){
         logger.info("Requesting Vacinas Info from Camara {}", camaraId);
         
-        List<VacinaBrief> vacinas = new ArrayList<>();
+        List<VacinaSchema> vacinas = new ArrayList<>();
         try{
             Camara c = camarasConfiguration.getCamaras().get(camaraId);
             for( Vacina v : c.getVacinas()){
                 Vacina.TipoVacina t = v.getTipo();
                 vacinas.add( 
-                    new VacinaBrief(t.getNome(), (float) t.getTempMax(), (float) t.getTempMin(), v.getAbastecimento(), v.getStatus())
+                    new VacinaSchema(t.getNome(), (float) t.getTempMax(), (float) t.getTempMin(), v.getAbastecimento(), v.getStatus())
                 );
             }
             logger.info("Request will return {} Vacinas Info", vacinas.size());

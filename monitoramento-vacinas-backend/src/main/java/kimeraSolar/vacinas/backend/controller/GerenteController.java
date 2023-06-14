@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import kimeraSolar.vacinas.backend.configuration.GerentesConfiguration;
+import kimeraSolar.vacinas.backend.schemas.CamaraSchema;
 import kimeraSolar.vacinas.domain.Camara;
 import kimeraSolar.vacinas.domain.Gerente;
 import kimeraSolar.vacinas.domain.MovingObject.Location;
@@ -31,32 +32,17 @@ public class GerenteController {
         return gerentesConfiguration.getGerentes().get(gerenteId);
     }
 
-    public static class CamaraBrief{
-        public CamaraBrief(String status, float temperatura, String id, float[] location) {
-            super();
-            this.camaraStatus = status;
-            this.camaraTemperature = temperatura;
-            this.camaraName = id;
-            this.camaraLocation = location;
-        }
-        public String camaraStatus;
-        public float camaraTemperature;
-        public String camaraName;
-        public float[] camaraLocation;
-        
-    }
-
     @GetMapping("/{username}/camaras")
-    public List<CamaraBrief> getCamarasBrief(@PathVariable("username") String username){
+    public List<CamaraSchema> getCamarasBrief(@PathVariable("username") String username){
         logger.info("Requesting Camaras Info from Gerente {}", username);
-        List<CamaraBrief> camarasBrief = new ArrayList<>();
+        List<CamaraSchema> camarasBrief = new ArrayList<>();
         try{
             Gerente g = getGerente(username);
 
             for(Camara c : g.getCamaras()){
                 float[] location = {c.getLocal().getLatitude(), c.getLocal().getLongitude()};
                 camarasBrief.add(
-                    new CamaraBrief(c.getStatus(), c.getTemp().getTemp(), c.getObjectId(), location )
+                    new CamaraSchema(c.getStatus(), c.getTemp().getTemp(), c.getObjectId(), location )
                 );
             }
             logger.info("Request will return {} Camaras Info", camarasBrief.size());
