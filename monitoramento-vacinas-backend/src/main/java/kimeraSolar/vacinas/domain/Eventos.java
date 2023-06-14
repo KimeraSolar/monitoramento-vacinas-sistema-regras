@@ -1,11 +1,11 @@
 package kimeraSolar.vacinas.domain;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 public class Eventos {
 	
 	public static class LeituraTemperatura{
-		public LeituraTemperatura(Camara camara, float temp, Date inicio) {
+		public LeituraTemperatura(Camara camara, float temp, Timestamp inicio) {
 			super();
 			this.camara = camara;
 			this.temp = temp;
@@ -14,7 +14,7 @@ public class Eventos {
 		
 		private Camara camara;
 		private float temp;
-		private Date inicio;
+		private Timestamp inicio;
 		
 		public Camara getCamara() {
 			return camara;
@@ -28,16 +28,16 @@ public class Eventos {
 		public void setTemp(float temp) {
 			this.temp = temp;
 		}
-		public Date getInicio() {
+		public Timestamp getInicio() {
 			return inicio;
 		}
-		public void setInicio(Date inicio) {
+		public void setInicio(Timestamp inicio) {
 			this.inicio = inicio;
 		}
 	}
 	
 	public static class Perigo{ 
-		public Perigo(Camara camara, Vacina vacina, float temp, boolean ativo, Date inicio) {
+		public Perigo(Camara camara, Vacina vacina, float temp, boolean ativo, Timestamp inicio) {
 			super();
 			this.camara = camara;
 			this.vacina = vacina;
@@ -47,7 +47,7 @@ public class Eventos {
 			this.duration = 0;
 		}
 
-		public Perigo(Camara camara, Vacina vacina, LeituraTemperatura leituraTemperatura, boolean ativo, Date inicio){
+		public Perigo(Camara camara, Vacina vacina, LeituraTemperatura leituraTemperatura, boolean ativo, Timestamp inicio){
 			super();
 			this.camara = camara;
 			this.vacina = vacina;
@@ -63,7 +63,7 @@ public class Eventos {
 		private float temp;
 		private LeituraTemperatura leituraTemperatura;
 		private boolean ativo;
-		private Date inicio;
+		private Timestamp inicio;
 		private long duration;
 
 		public LeituraTemperatura getLeituraTemperatura(){
@@ -95,10 +95,10 @@ public class Eventos {
 				this.setDuration(System.currentTimeMillis() - this.getInicio().getTime());
 			}
 		}
-		public Date getInicio() {
+		public Timestamp getInicio() {
 			return inicio;
 		}
-		public void setInicio(Date inicio) {
+		public void setInicio(Timestamp inicio) {
 			this.inicio = inicio;
 		}
 		public long getDuration() {
@@ -117,7 +117,7 @@ public class Eventos {
 	
 	public static class Alerta{
 		
-		public Alerta(Camara camara, Vacina vacina, Gerente gerente, float temp, boolean ativo, Date inicio) {
+		public Alerta(Camara camara, Vacina vacina, Gerente gerente, float temp, boolean ativo, Timestamp inicio) {
 			super();
 			this.camara = camara;
 			this.vacina = vacina;
@@ -127,7 +127,7 @@ public class Eventos {
 			this.inicio = inicio;
 		}
 
-		public Alerta(Camara camara, Vacina vacina, Gerente gerente, LeituraTemperatura leituraTemperatura, boolean ativo, Date inicio){
+		public Alerta(Camara camara, Vacina vacina, Gerente gerente, LeituraTemperatura leituraTemperatura, boolean ativo, Timestamp inicio){
 			super();
 			this.camara = camara;
 			this.vacina = vacina;
@@ -143,7 +143,7 @@ public class Eventos {
 		private Gerente gerente;
 		private float temp;
 		private boolean ativo;
-		private Date inicio;
+		private Timestamp inicio;
 		private long duration;
 		private LeituraTemperatura leituraTemperatura;
 
@@ -179,10 +179,10 @@ public class Eventos {
 		public void setAtivo(boolean ativo) {
 			this.ativo = ativo;
 		}
-		public Date getInicio() {
+		public Timestamp getInicio() {
 			return inicio;
 		}
-		public void setInicio(Date inicio) {
+		public void setInicio(Timestamp inicio) {
 			this.inicio = inicio;
 		}
 		public long getDuration() {
@@ -202,19 +202,19 @@ public class Eventos {
 	
 	public static class Descarte{
 		
-		public Descarte(Alerta alerta, Date timestamp) {
+		public Descarte(Alerta alerta, Timestamp timestamp) {
 			super();
 			this.timestamp = timestamp;
 			this.alerta = alerta;
 		}
 		
-		private Date timestamp;
+		private Timestamp timestamp;
 		private Alerta alerta;
 		
-		public Date getTimestamp() {
+		public Timestamp getTimestamp() {
 			return timestamp;
 		}
-		public void setTimestamp(Date timestamp) {
+		public void setTimestamp(Timestamp timestamp) {
 			this.timestamp = timestamp;
 		}
 		public Alerta getAlerta() {

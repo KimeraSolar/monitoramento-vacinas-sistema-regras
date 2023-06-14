@@ -42,7 +42,7 @@ public class RegrasMonitoramento {
         rulePackage.addInclude("kimeraSolar.vacinas.domain.Eventos.Perigo");
         rulePackage.addInclude("kimeraSolar.vacinas.domain.Eventos.Alerta");
         rulePackage.addInclude("kimeraSolar.vacinas.domain.Eventos.Descarte");
-        rulePackage.addInclude("java.util.Date");
+        rulePackage.addInclude("java.sql.Timestamp");
         
         JSONObject jsonPerigoDeclaration = new JSONObject();
         jsonPerigoDeclaration.put("ruleName", "Perigo Declaration");
@@ -155,7 +155,7 @@ public class RegrasMonitoramento {
             .append("\t$camara : Camara( vacinas contains $vacina, $temp : temp, ( $temp.getTemp() - $vacina.getTipo().getTempMin() < 1 && > 0 ) || ( $vacina.getTipo().getTempMax() - $temp.getTemp() < 1 && > 0) ) \n")
             .append("\tnot (exists ( Perigo( $vacina == vacina, ativo == true) ) )\n")
             .append("then\n")
-            .append("\tinsert(new Perigo( $camara, $vacina, $temp, true, new Date()) );\n")
+            .append("\tinsert(new Perigo( $camara, $vacina, $temp, true, new Timestamp(System.currentTimeMillis())) );\n")
             .append("\tSystem.out.println(\"Temperatura perto dos limites da vacina \" + $vacina.getTipo().getNome() +\": \" + $camara.getObjectId() + \" \" + $temp.getTemp() + \"ºC.\");\n")
             .append("\t$camara.sendMessage(\"A Câmara \" + $camara.getObjectId() + \" está com temperatura \" + $temp.getTemp() + \"ºC muito perto dos limites para a vacina \" + $vacina.getTipo().getNome() + \".\");\n") 
             .append("\t$camara.setPerigo(true);\n")
@@ -212,7 +212,7 @@ public class RegrasMonitoramento {
             .append("    $camara : Camara( vacinas contains $vacina, $temp : temp, ( $temp.getTemp() < $vacina.getTipo().getTempMin() ) || ( $temp.getTemp() > $vacina.getTipo().getTempMax() ) )\n")
             .append("    not ( exists ( Alerta( $vacina == vacina, ativo == true ) ) )\n")
             .append("then\n")
-            .append("    insert ( new Alerta($camara, $vacina, $camara.gerenteMaisProx(), $temp, true, new Date()) );\n")
+            .append("    insert ( new Alerta($camara, $vacina, $camara.gerenteMaisProx(), $temp, true, new Timestamp(System.currentTimeMillis())) );\n")
             .append("    System.out.println(\"Temperatura fora dos limites para vacina \" + $vacina.getTipo().getNome() +\": \" + $camara.getObjectId() + \" \" + $temp.getTemp() + \"ºC.\");\n")
             .append("    $camara.gerenteMaisProx().sendMensagem(	\"Alerta na Câmara \" + $camara.getObjectId() + \" com temperatura \" + $temp.getTemp() + \" fora dos limites para a vacina \" + $vacina.getTipo().getNome() +\n")
             .append("                            \". Favor comparecer no local \" + $camara.getLocal() + \" imediatamente.\");\n")
@@ -273,7 +273,7 @@ public class RegrasMonitoramento {
             .append("    eval ((System.currentTimeMillis() - $inicio.getTime()) > $vacina.getTipo().getTempoDescarte())\n")
             .append("    not (exists (Descarte($alerta == alerta) ) )\n")
             .append("then\n")
-            .append("    insert ( new Descarte($alerta, new Date()) );\n")
+            .append("    insert ( new Descarte($alerta, new Timestamp(System.currentTimeMillis())) );\n")
             .append("    $vacina.setDescartada(true);\n")
             .append("    update($vacina);\n")
             .append("    System.out.println(\"Descarte sugerido para vacina \" + $vacina.getTipo().getNome() + \": \" +  $camara.getObjectId() + \".\");\n")

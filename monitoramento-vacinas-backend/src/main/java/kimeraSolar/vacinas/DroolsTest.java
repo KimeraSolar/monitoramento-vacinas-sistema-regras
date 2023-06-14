@@ -21,6 +21,7 @@ import kimeraSolar.vacinas.domain.TempSensorWrapper;
 import kimeraSolar.vacinas.domain.Vacina;
 import kimeraSolar.vacinas.domain.MovingObject.Location;
 import kimeraSolar.vacinas.services.RuleEngine;
+import kimeraSolar.vacinas.services.listeners.AlertaListener;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -40,10 +41,11 @@ public class DroolsTest implements CommandLineRunner {
 	private CamarasConfiguration camarasConfiguration;
 
     public void run(String... args) {
-		test_01(args);
+		start_engine(args);
+		test_02(args);
 	}
 
-	static public void test_engine( String[] args){
+	static public void start_engine( String[] args){
 		
 		RuleEngine.startEngine(args);
 		
@@ -59,8 +61,6 @@ public class DroolsTest implements CommandLineRunner {
 	public void test_01(String... args){
 
 		String INPUT_FILE = "config/teste_01.xml";
-
-		test_engine(args);
 
 		WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
     	
@@ -171,4 +171,9 @@ public class DroolsTest implements CommandLineRunner {
         }
     }
 
+	public void test_02(String... args){
+		WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+    	workingMemory.getKieSession().addEventListener(new AlertaListener());
+		test_01(args);
+	}
 }

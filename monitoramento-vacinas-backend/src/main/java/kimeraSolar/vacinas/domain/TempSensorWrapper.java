@@ -1,6 +1,6 @@
 package kimeraSolar.vacinas.domain;
 
-import java.util.Date;
+import java.sql.Timestamp;
 import java.util.Random;
 
 import org.kie.api.runtime.KieSession;
@@ -27,7 +27,7 @@ public class TempSensorWrapper implements Runnable {
 		
 		int min = 0, max = 10;
 		Camara c = (Camara) kSession.getObject(fact);
-		LeituraTemperatura leitura = new Eventos.LeituraTemperatura(c, min + rand.nextFloat()*(max - min), new Date());
+		LeituraTemperatura leitura = new Eventos.LeituraTemperatura(c, min + rand.nextFloat()*(max - min), new Timestamp(System.currentTimeMillis()));
 		c.setTemp(leitura);
 	}
 	
@@ -37,7 +37,7 @@ public class TempSensorWrapper implements Runnable {
 			try {	
 				Camara c = (Camara) kSession.getObject(fact);
 				if(c.isAtiva()) {
-					LeituraTemperatura leitura = new Eventos.LeituraTemperatura(c, sensor.getSensorValue(), new Date());
+					LeituraTemperatura leitura = new Eventos.LeituraTemperatura(c, sensor.getSensorValue(), new Timestamp(System.currentTimeMillis()));
 					c.setTemp(leitura);
 					kSession.update(fact, c);
 					kSession.insert( leitura );
