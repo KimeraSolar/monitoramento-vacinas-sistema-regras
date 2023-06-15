@@ -1,0 +1,28 @@
+<teste-vacinas>
+	<tipos-vacinas>
+		<tipo-vacina nome="CoronaVac" tempMin="-4" tempMax="10" tempo="10000"></tipo-vacina>
+		<tipo-vacina nome="CovidShield" tempMin="-2" tempMax="8" tempo="5000"></tipo-vacina>
+	</tipos-vacinas>
+	<gerentes>
+		<gerente nome="Gerente 01" id="g01" gps-sensor-mode="static" gps-sensor-initial-location="-20.257351328679277, -40.271180868108075"></gerente>
+		<gerente nome="Gerente 02" id="g02" gps-sensor-mode="static" gps-sensor-initial-location="-20.256234350307395, -40.26421834306698"></gerente></gerentes>
+	<camaras>
+		<camara id="c01" temp-sensor-mode="smooth" gps-sensor-mode="static" gps-sensor-initial-location="-20.250705646621373, -40.27221575863521"></camara>
+		<camara id="c02" temp-sensor-mode="random" gps-sensor-mode="static" gps-sensor-initial-location="-20.26153786295229, -40.264628186978015"></camara>
+		<camara id="c03" temp-sensor-mode="increasing" gps-sensor-mode="static" gps-sensor-initial-location="-20.25660404606398, -40.26530650538461"></camara>
+	</camaras>
+	<vacinas>
+		<vacina tipo="CovidShield" camara="c01"></vacina>
+		<vacina tipo="CovidShield" camara="c01"></vacina>
+		<vacina tipo="CoronaVac" camara="c01"></vacina>
+		<vacina tipo="CoronaVac" camara="c02"></vacina>
+		<vacina tipo="CoronaVac" camara="c02"></vacina>
+	</vacinas>
+	<responsabilidades>
+		<responsabilidade gerente="g01" camara="c01"></responsabilidade>
+		<responsabilidade gerente="g02" camara="c01"></responsabilidade>
+		<responsabilidade gerente="g01" camara="c02"></responsabilidade>
+		<responsabilidade gerente="g01" camara="c03"></responsabilidade>
+		<responsabilidade gerente="g02" camara="c03"></responsabilidade>
+	</responsabilidades>
+</teste-vacinas>
