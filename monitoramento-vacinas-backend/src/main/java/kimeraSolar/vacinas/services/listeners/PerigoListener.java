@@ -36,7 +36,7 @@ public class PerigoListener extends DefaultRuleRuntimeEventListener {
     public void writeReport(String file_name){
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(file_name));
-            writer.write("Timestamp Leitura,Timestamp Alerta\n");
+            writer.write("Timestamp Leitura,Timestamp Perigo\n");
             for (Pair<Timestamp, Timestamp> p : this.perigos){
                 writer.write(p.getLeft() + "," + p.getRight() + "\n");
             }
