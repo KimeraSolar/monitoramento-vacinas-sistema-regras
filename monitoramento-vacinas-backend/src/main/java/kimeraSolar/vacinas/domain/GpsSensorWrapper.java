@@ -41,19 +41,23 @@ public class GpsSensorWrapper implements Runnable {
 	
 	@Override
 	public void run() {
-		while(true) {
+		while(!Thread.interrupted()) {
 			try {	
 				MovingObject m = (MovingObject) kSession.getObject(fact);
 				m.setLocal(sensor.getSensorValue());
-				//System.out.println("Localização de " + m.getObjectId() + ": " + m.getLocal().getLatitude() + ", " + m.getLocal().getLongitude());
+				//logger.info("Localização de " + m.getObjectId() + ": " + m.getLocal().getLatitude() + ", " + m.getLocal().getLongitude());
 				kSession.update(fact, m);
 				kSession.fireAllRules();
 				
 				Thread.sleep(1000*rand.nextInt(10)+1000);
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (InterruptedException e) {
+				//e.printStackTrace();
+				logger.info("Encerrando Simulação GPS " + this.sensorId);
+				break;
 			}
 		}
+		
+		logger.info("Encerrando Thread GPS " + this.sensorId);
 	}
 	
 	public String getOpMode() {

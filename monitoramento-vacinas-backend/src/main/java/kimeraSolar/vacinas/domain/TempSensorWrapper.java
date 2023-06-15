@@ -37,7 +37,7 @@ public class TempSensorWrapper implements Runnable {
 	
 	@Override
 	public void run() {
-		while(true) {
+		while(!Thread.interrupted()) {
 			try {	
 				Camara c = (Camara) kSession.getObject(fact);
 				if(c.isAtiva()) {
@@ -50,10 +50,14 @@ public class TempSensorWrapper implements Runnable {
 				kSession.fireAllRules();
 				
 				Thread.sleep(1000*rand.nextInt(10)+1000);
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (InterruptedException e) {
+				logger.info("Encerrando Simulação Sensor de Temperatura " + this.sensorId);
+				break;
 			}
 		}
+		
+		logger.info("Encerrando Thread Sensor de Temperatura " + this.sensorId);
+
 	}
 	
 	public String getOpMode() {
