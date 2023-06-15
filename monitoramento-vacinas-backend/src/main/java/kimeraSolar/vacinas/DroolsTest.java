@@ -46,6 +46,7 @@ public class DroolsTest implements CommandLineRunner {
 	static Logger logger = LoggerFactory.getLogger(DroolsTest.class);
 
     public void run(String... args) {
+		logger.info(args.toString());
 		start_engine(args);
 		test_02(args);
 	}
@@ -65,7 +66,7 @@ public class DroolsTest implements CommandLineRunner {
 
 	public void test_01(String... args){
 
-		String INPUT_FILE = "config/teste_01.xml";
+		String INPUT_FILE = "config/teste_frontend.xml";
 
 		WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
     	
@@ -178,6 +179,10 @@ public class DroolsTest implements CommandLineRunner {
             
 			for (Thread t : threads){
 				t.interrupt();
+			}
+
+			for (Thread t : threads){
+				t.join();
 			}
 
 			logger.info("Threads finalizadas");
