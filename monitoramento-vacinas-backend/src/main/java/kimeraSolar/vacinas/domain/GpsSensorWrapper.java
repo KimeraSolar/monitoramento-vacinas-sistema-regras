@@ -4,6 +4,8 @@ import java.util.Random;
 
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kimeraSolar.vacinas.domain.MovingObject.Location;
 
@@ -16,6 +18,7 @@ public class GpsSensorWrapper implements Runnable {
 	String opMode;
 	SensorBehaviour sensor;
 	Location initialLocation;
+	Logger logger = LoggerFactory.getLogger(GpsSensorWrapper.class);
 	
 	public GpsSensorWrapper(String id, KieSession k, FactHandle f, String mode) {
 		super();

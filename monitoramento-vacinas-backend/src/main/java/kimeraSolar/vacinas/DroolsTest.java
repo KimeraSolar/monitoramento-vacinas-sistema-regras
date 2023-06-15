@@ -28,6 +28,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.kie.api.definition.rule.Rule;
 import org.kie.api.runtime.rule.FactHandle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -41,6 +43,8 @@ public class DroolsTest implements CommandLineRunner {
 	@Autowired
 	private CamarasConfiguration camarasConfiguration;
 
+	static Logger logger = LoggerFactory.getLogger(DroolsTest.class);
+
     public void run(String... args) {
 		start_engine(args);
 		test_02(args);
@@ -50,11 +54,11 @@ public class DroolsTest implements CommandLineRunner {
 		
 		RuleEngine.startEngine(args);
 		
-		System.out.println("Inicializando Working Memory do MonitoraVax...");
-		System.out.println("Regras inicializadas:");
+		logger.info("Inicializando Working Memory do MonitoraVax...");
+		logger.info("Regras inicializadas:");
 		
         for(Rule rule : RuleEngine.ruleEngineManagement.listRules()){
-            System.out.println(rule.toString());
+            logger.info(rule.toString());
         }
 
     }
@@ -159,6 +163,8 @@ public class DroolsTest implements CommandLineRunner {
             	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()), g.getLocal())));
             	sensorid += 1;
             }
+
+			logger.info("Inicializando Threads");
             
             for (Thread t : threads) {
             	t.start();
@@ -167,9 +173,12 @@ public class DroolsTest implements CommandLineRunner {
 			for (Thread t : threads){
 				t.join(10000);
 			}
+
+			logger.info("Threads finalizadas");
         } catch (Throwable t) {
             t.printStackTrace();
         }
+		
     }
 
 	public void test_02(String... args){
@@ -179,6 +188,7 @@ public class DroolsTest implements CommandLineRunner {
     	workingMemory.getKieSession().addEventListener(alertaListener);
 		workingMemory.getKieSession().addEventListener(perigoListener);
 		test_01(args);
+		logger.info("Escrevendo relatórios");
 		alertaListener.writeReport("teste_alertas.csv");
 		perigoListener.writeReport("teste_perigos.csv");
 	}
