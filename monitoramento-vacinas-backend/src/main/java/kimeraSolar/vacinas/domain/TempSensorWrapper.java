@@ -46,10 +46,10 @@ public class TempSensorWrapper implements Runnable {
 					kSession.update(fact, c);
 					kSession.insert( leitura );
 				}
-				// logger.info("Temperatura de " + c.getObjectId() + ": " + c.getTemp().getTemp());
+				logger.info("Temperatura de " + c.getObjectId() + ": " + c.getTemp().getTemp());
 				kSession.fireAllRules();
 				
-				Thread.sleep(1000*rand.nextInt(10)+1000);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				logger.info("Encerrando Simulação Sensor de Temperatura " + this.sensorId);
 				break;

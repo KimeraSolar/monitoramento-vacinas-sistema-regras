@@ -1,8 +1,10 @@
 package kimeraSolar.vacinas;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.Map;
-import java.util.Random;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -50,7 +52,11 @@ public class DroolsTest implements CommandLineRunner {
 		for( String arg : args){
 			if (arg.startsWith("test_mode=") && arg.contains("performance_test")){
 				logger.info("Iniciando teste de performance");
-				performance_test(args);
+				try {
+					performance_test(args);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
 				System.exit(0);
 			}
 		}
@@ -71,53 +77,133 @@ public class DroolsTest implements CommandLineRunner {
 
     }
 
-	public void performance_test(String... args){
-		long sim_time = /*600000*/ 60000;
-		int cod_test = 1;
+	public void performance_test(String... args) throws FileNotFoundException{
+		long sim_time = 600000;
+		int cod_test = 13;
 		int test_repeat = 3;
 
+		PrintStream stdout = System.out;
+
 		// Primeiro teste - uma única câmara
+		// {
+		// 	int n_vacinas = 10;
+		// 	int n_camaras = 1;
+		// 	int n_gerentes = 1;
+		// 	int n_cidades = 1;
+		// 	int n_estados = 1;
+		// 	int n_paises = 1;
+
+			
+			
+		// 	for (int i = 1; i <= test_repeat; i++){
+		// 		System.setOut(new PrintStream(new FileOutputStream("results/logs/teste_" + String.format("%03d", cod_test) + ".log" )));
+		// 		logger.info("Primeiro teste - uma unica camara");
+		// 		logger.info("Iniciando teste " + i);
+
+		// 		start_engine(args);
+		// 		execute_performance_test(cod_test, sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
+				
+		// 		cod_test++;
+		// 	}
+
+		// }
+
+		// Segundo teste - uma unidade de saude (10 camaras)
+		// {
+		// 	int n_vacinas = 10;
+		// 	int n_camaras = 10;
+		// 	int n_gerentes = 1;
+		// 	int n_cidades = 1;
+		// 	int n_estados = 1;
+		// 	int n_paises = 1;
+
+		// 	for (int i = 1; i <= test_repeat; i++){
+		// 		System.setOut(new PrintStream(new FileOutputStream("results/logs/teste_" + String.format("%03d", cod_test) + ".log" )));
+		// 		logger.info("Segundo teste - uma unidade de saude (10 camaras)");
+		// 		logger.info("Iniciando teste " + i);
+
+		// 		start_engine(args);
+		// 		execute_performance_test(cod_test, sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
+				
+		// 		cod_test++;
+		// 	}
+		// }
+
+		// // Terceiro teste - uma cidade (100 camaras)
+		// {
+		// 	int n_vacinas = 10;
+		// 	int n_camaras = 10;
+		// 	int n_gerentes = 10;
+		// 	int n_cidades = 1;
+		// 	int n_estados = 1;
+		// 	int n_paises = 1;
+
+		// 	for (int i = 1; i <= test_repeat; i++){
+		// 		System.setOut(new PrintStream(new FileOutputStream("results/logs/teste_" + String.format("%03d", cod_test) + ".log" )));
+		// 		logger.info("Terceiro teste - uma cidade (100 camaras)");
+		// 		logger.info("Iniciando teste " + i);
+
+		// 		start_engine(args);
+		// 		execute_performance_test(cod_test, sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
+				
+		// 		cod_test++;
+		// 	}
+		// }
+
+		// // Quarto teste - um estado (1000 camaras)
+		// {
+		// 	int n_vacinas = 10;
+		// 	int n_camaras = 10;
+		// 	int n_gerentes = 10;
+		// 	int n_cidades = 10;
+		// 	int n_estados = 1;
+		// 	int n_paises = 1;
+
+		// 	for (int i = 1; i <= test_repeat; i++){
+		// 		System.setOut(new PrintStream(new FileOutputStream("results/logs/teste_" + String.format("%03d", cod_test) + ".log" )));
+		// 		logger.info("Quarto teste - um estado (1000 camaras)");
+		// 		logger.info("Iniciando teste " + i);
+
+		// 		start_engine(args);
+		// 		execute_performance_test(cod_test, sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
+				
+		// 		cod_test++;
+		// 	}
+		// }
+
+		// Quinto teste - um país (5000 camaras)
 		{
 			int n_vacinas = 10;
-			int n_camaras = 1;
-			int n_gerentes = 1;
-			int n_cidades = 1;
-			int n_estados = 1;
+			int n_camaras = 10;
+			int n_gerentes = 10;
+			int n_cidades = 10;
+			int n_estados = 5;
 			int n_paises = 1;
 
-			logger.info("Iniciando primeiro teste - uma \u00FAnica c\u00E2mara");
-			
 			for (int i = 1; i <= test_repeat; i++){
-				logger.info("Iniciando teste " + i);
-
+				System.setOut(new PrintStream(new FileOutputStream("results/logs/teste_" + String.format("%03d", cod_test) + ".log" )));
+				logger.info("Quinto teste - um país (5000 camaras)");
+				
 				start_engine(args);
-
-				WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
-				AlertaListener alertaListener = new AlertaListener();
-				PerigoListener perigoListener = new PerigoListener();
-				workingMemory.getKieSession().addEventListener(alertaListener);
-				workingMemory.getKieSession().addEventListener(perigoListener);
-				
-				execute_performance_test(sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
-				
-				logger.info("Escrevendo relat\u00F3rios");
-				alertaListener.writeReport("results/performance_data/teste_" + String.format("%03d", cod_test) + "_alertas.csv");
-				perigoListener.writeReport("results/performance_data/teste_" + String.format("%03d", cod_test) + "_perigos.csv");
-
-				RuleEngine.ruleEngineManagement.saveWorkingMemory("results/working_memories/teste_" + String.format("%03d", cod_test) + "_workingmemory");
+				execute_performance_test(cod_test, sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
 				
 				cod_test++;
-			
 			}
-
 		}
+
+		System.setOut(stdout); 
 
 	}
 
-	public void execute_performance_test(long sim_time, int n_vacinas, int n_camaras, int n_gerentes, int n_cidades, int n_estados, int n_paises){
+	public void execute_performance_test(int test_code, long sim_time, int n_vacinas, int n_camaras, int n_gerentes, int n_cidades, int n_estados, int n_paises){
 		
 		WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
 		List<Thread> threads = new LinkedList<Thread>();
+
+		AlertaListener alertaListener = new AlertaListener();
+		PerigoListener perigoListener = new PerigoListener();
+		workingMemory.getKieSession().addEventListener(alertaListener);
+		workingMemory.getKieSession().addEventListener(perigoListener);
 
 		try{	
 			// Inicializa working memory
@@ -151,18 +237,21 @@ public class DroolsTest implements CommandLineRunner {
 								// Inicializa vacina
 								for (int vacina = 1; vacina <= n_vacinas; vacina++){
 									String cod_vacina = cod_camara + "V" + String.format("%03d", vacina);
-									Random rand = new Random();
+									int minTemp = -2;
+									int maxTemp = 8;
 									Vacina v = new Vacina(
 										new Vacina.TipoVacina(
 											cod_vacina, 
-											-10 + rand.nextInt()*(2 - (-10)), 
-											8 + rand.nextInt()*(20 - 8), 
-											(1 + rand.nextInt()*(10 - 1))*1000  
+											(int) ((Math.random() * (minTemp - (-6))) + (-6)), 
+											(int) ((Math.random() * (12 - maxTemp)) + maxTemp), 
+											sim_time
 										),
 										new Date(),
 										null,
 										false
 									);
+
+									logger.info("Nova vacina: " + v.getTipo().toString());
 
 									// Insere vacina criada na câmara e na working memory
 									c.addVacina(v);
@@ -172,7 +261,7 @@ public class DroolsTest implements CommandLineRunner {
 								// Insere camara criada na working memory e inicializa os sensores
 								FactHandle f = workingMemory.getKieSession().insert(c);
 								threads.add(new Thread(new GpsSensorWrapper(cod_camara + "GPS", workingMemory.getKieSession(), f, "static")));
-								threads.add(new Thread(new TempSensorWrapper(cod_camara + "TempSensor", workingMemory.getKieSession(), f, "smooth")));
+								threads.add(new Thread(new TempSensorWrapper(cod_camara + "TempSensor", workingMemory.getKieSession(), f, "random")));
 							}
 
 							// Insere gerente criado na working memory e inicializa os sensores
@@ -213,6 +302,12 @@ public class DroolsTest implements CommandLineRunner {
 		}catch(Throwable t){
 			t.printStackTrace();
 		}
+
+		logger.info("Escrevendo relatórios");
+		alertaListener.writeReport("results/performance_data/teste_" + String.format("%03d", test_code) + "_alertas.csv");
+		perigoListener.writeReport("results/performance_data/teste_" + String.format("%03d", test_code) + "_perigos.csv");
+
+		RuleEngine.ruleEngineManagement.saveWorkingMemory("results/working_memories/teste_" + String.format("%03d", test_code) + "_workingmemory");
 		
 	}
 

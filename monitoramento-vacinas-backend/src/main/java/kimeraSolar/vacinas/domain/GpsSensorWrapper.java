@@ -49,7 +49,7 @@ public class GpsSensorWrapper implements Runnable {
 				kSession.update(fact, m);
 				kSession.fireAllRules();
 				
-				Thread.sleep(1000*rand.nextInt(10)+1000);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				//e.printStackTrace();
 				logger.info("Encerrando Simulação GPS " + this.sensorId);

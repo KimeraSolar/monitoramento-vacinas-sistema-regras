@@ -85,6 +85,10 @@ public class Vacina implements Serializable {
 		public void setTempoDescarte(long tempoDescarte) {
 			this.tempoDescarte = tempoDescarte;
 		}
+
+		public String toString(){
+			return "Tipo de Vacina: " + this.getNome() + " { minTemp: " + this.getTempMin() + ", maxTemp: " + this.getTempMax() + ", descarte: " + this.getTempoDescarte() + " }";
+		}
 		
 		
 	}
