@@ -1,8 +1,9 @@
 package kimeraSolar.vacinas.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Vacina {
+public class Vacina implements Serializable {
 
 	private TipoVacina tipo;
 	private Date abastecimento;
@@ -38,7 +39,7 @@ public class Vacina {
 	}
 
 	
-	public static class TipoVacina{
+	public static class TipoVacina implements Serializable{
 
 		private String nome;
 		private double tempMin;

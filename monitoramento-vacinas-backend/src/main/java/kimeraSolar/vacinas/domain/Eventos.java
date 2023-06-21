@@ -1,10 +1,11 @@
 package kimeraSolar.vacinas.domain;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 public class Eventos {
 	
-	public static class LeituraTemperatura{
+	public static class LeituraTemperatura implements Serializable{
 		public LeituraTemperatura(Camara camara, float temp, Timestamp inicio) {
 			super();
 			this.camara = camara;
@@ -36,7 +37,7 @@ public class Eventos {
 		}
 	}
 	
-	public static class Perigo{ 
+	public static class Perigo implements Serializable{ 
 		public Perigo(Camara camara, Vacina vacina, float temp, boolean ativo, Timestamp inicio) {
 			super();
 			this.camara = camara;
@@ -115,7 +116,7 @@ public class Eventos {
 		}
 	};
 	
-	public static class Alerta{
+	public static class Alerta implements Serializable{
 		
 		public Alerta(Camara camara, Vacina vacina, Gerente gerente, float temp, boolean ativo, Timestamp inicio) {
 			super();
@@ -200,7 +201,7 @@ public class Eventos {
 		
 	}
 	
-	public static class Descarte{
+	public static class Descarte implements Serializable{
 		
 		public Descarte(Alerta alerta, Timestamp timestamp) {
 			super();

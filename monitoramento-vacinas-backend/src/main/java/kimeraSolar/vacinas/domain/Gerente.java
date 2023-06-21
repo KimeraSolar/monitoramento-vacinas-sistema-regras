@@ -1,5 +1,6 @@
 package kimeraSolar.vacinas.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -9,7 +10,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Gerente extends MovingObject {
+public class Gerente extends MovingObject implements Serializable {
 	
 	private String nome;
 	private List<Camara> camaras;

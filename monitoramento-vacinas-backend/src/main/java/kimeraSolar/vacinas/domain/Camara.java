@@ -1,4 +1,5 @@
 package kimeraSolar.vacinas.domain;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -7,7 +8,7 @@ import java.util.Map;
 
 import kimeraSolar.vacinas.domain.Eventos.LeituraTemperatura;
 
-public class Camara extends MovingObject {
+public class Camara extends MovingObject implements Serializable{
 
 	private LeituraTemperatura temperaturaAtual;
 	private List<Vacina> vacinas;
