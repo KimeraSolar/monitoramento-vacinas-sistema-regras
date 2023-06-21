@@ -70,10 +70,10 @@ public class GpsSensorWrapper implements Runnable {
 			if(initialLocation != null){
 				sensor = new StaticSensor(initialLocation.getLatitude(), initialLocation.getLongitude());
 			}else{
-				sensor = new StaticSensor(-10,10,-20,20,rand);
+				sensor = new StaticSensor((float)-20.3,(float)-20.2,(float)-40.3,(float)-40.2,rand);
 			}			
 		}else {
-			sensor = new RandomSensor(-10,10,-20,20,rand);
+			sensor = new RandomSensor((float)-20.3,(float)-20.2,(float)-40.3,(float)-40.2,rand);
 		}
 	}
 	
