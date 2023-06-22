@@ -78,98 +78,96 @@ public class DroolsTest implements CommandLineRunner {
     }
 
 	public void performance_test(String... args) throws FileNotFoundException{
-		long sim_time = 600000;
-		int cod_test = 13;
+		long sim_time = 150000;
+		int cod_test = 1;
 		int test_repeat = 3;
 
 		PrintStream stdout = System.out;
 
 		// Primeiro teste - uma única câmara
-		// {
-		// 	int n_vacinas = 10;
-		// 	int n_camaras = 1;
-		// 	int n_gerentes = 1;
-		// 	int n_cidades = 1;
-		// 	int n_estados = 1;
-		// 	int n_paises = 1;
-
+		{
+			int n_vacinas = 10;
+			int n_camaras = 1;
+			int n_gerentes = 1;
+			int n_cidades = 1;
+			int n_estados = 1;
+			int n_paises = 1;			
 			
-			
-		// 	for (int i = 1; i <= test_repeat; i++){
-		// 		System.setOut(new PrintStream(new FileOutputStream("results/logs/teste_" + String.format("%03d", cod_test) + ".log" )));
-		// 		logger.info("Primeiro teste - uma unica camara");
-		// 		logger.info("Iniciando teste " + i);
+			for (int i = 1; i <= test_repeat; i++){
+				System.setOut(new PrintStream(new FileOutputStream("results/logs/teste_" + String.format("%03d", cod_test) + ".log" )));
+				logger.info("Primeiro teste - uma unica camara");
+				logger.info("Iniciando teste " + i);
 
-		// 		start_engine(args);
-		// 		execute_performance_test(cod_test, sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
+				start_engine(args);
+				execute_performance_test(cod_test, sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
 				
-		// 		cod_test++;
-		// 	}
+				cod_test++;
+			}
 
-		// }
+		}
 
 		// Segundo teste - uma unidade de saude (10 camaras)
-		// {
-		// 	int n_vacinas = 10;
-		// 	int n_camaras = 10;
-		// 	int n_gerentes = 1;
-		// 	int n_cidades = 1;
-		// 	int n_estados = 1;
-		// 	int n_paises = 1;
+		{
+			int n_vacinas = 10;
+			int n_camaras = 10;
+			int n_gerentes = 1;
+			int n_cidades = 1;
+			int n_estados = 1;
+			int n_paises = 1;
 
-		// 	for (int i = 1; i <= test_repeat; i++){
-		// 		System.setOut(new PrintStream(new FileOutputStream("results/logs/teste_" + String.format("%03d", cod_test) + ".log" )));
-		// 		logger.info("Segundo teste - uma unidade de saude (10 camaras)");
-		// 		logger.info("Iniciando teste " + i);
+			for (int i = 1; i <= test_repeat; i++){
+				System.setOut(new PrintStream(new FileOutputStream("results/logs/teste_" + String.format("%03d", cod_test) + ".log" )));
+				logger.info("Segundo teste - uma unidade de saude (10 camaras)");
+				logger.info("Iniciando teste " + i);
 
-		// 		start_engine(args);
-		// 		execute_performance_test(cod_test, sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
+				start_engine(args);
+				execute_performance_test(cod_test, sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
 				
-		// 		cod_test++;
-		// 	}
-		// }
+				cod_test++;
+			}
+		}
 
-		// // Terceiro teste - uma cidade (100 camaras)
-		// {
-		// 	int n_vacinas = 10;
-		// 	int n_camaras = 10;
-		// 	int n_gerentes = 10;
-		// 	int n_cidades = 1;
-		// 	int n_estados = 1;
-		// 	int n_paises = 1;
+		// Terceiro teste - uma cidade (100 camaras)
+		{
+			int n_vacinas = 10;
+			int n_camaras = 10;
+			int n_gerentes = 10;
+			int n_cidades = 1;
+			int n_estados = 1;
+			int n_paises = 1;
 
-		// 	for (int i = 1; i <= test_repeat; i++){
-		// 		System.setOut(new PrintStream(new FileOutputStream("results/logs/teste_" + String.format("%03d", cod_test) + ".log" )));
-		// 		logger.info("Terceiro teste - uma cidade (100 camaras)");
-		// 		logger.info("Iniciando teste " + i);
+			for (int i = 1; i <= test_repeat; i++){
+				System.setOut(new PrintStream(new FileOutputStream("results/logs/teste_" + String.format("%03d", cod_test) + ".log" )));
+				logger.info("Terceiro teste - uma cidade (100 camaras)");
+				logger.info("Iniciando teste " + i);
 
-		// 		start_engine(args);
-		// 		execute_performance_test(cod_test, sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
+				start_engine(args);
+				execute_performance_test(cod_test, sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
 				
-		// 		cod_test++;
-		// 	}
-		// }
+				cod_test++;
+			}
+		}
 
-		// // Quarto teste - um estado (1000 camaras)
-		// {
-		// 	int n_vacinas = 10;
-		// 	int n_camaras = 10;
-		// 	int n_gerentes = 10;
-		// 	int n_cidades = 10;
-		// 	int n_estados = 1;
-		// 	int n_paises = 1;
+		// Quarto teste - um estado (1000 camaras)
+		{
+			int n_vacinas = 10;
+			int n_camaras = 10;
+			int n_gerentes = 10;
+			int n_cidades = 10;
+			int n_estados = 1;
+			int n_paises = 1;
 
-		// 	for (int i = 1; i <= test_repeat; i++){
-		// 		System.setOut(new PrintStream(new FileOutputStream("results/logs/teste_" + String.format("%03d", cod_test) + ".log" )));
-		// 		logger.info("Quarto teste - um estado (1000 camaras)");
-		// 		logger.info("Iniciando teste " + i);
+			for (int i = 1; i <= test_repeat; i++){
+				System.setOut(new PrintStream(new FileOutputStream("results/logs/teste_" + String.format("%03d", cod_test) + ".log" )));
+				logger.info("Quarto teste - um estado (1000 camaras)");
+				logger.info("Iniciando teste " + i);
 
-		// 		start_engine(args);
-		// 		execute_performance_test(cod_test, sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
+				start_engine(args);
+				execute_performance_test(cod_test, sim_time, n_vacinas, n_camaras, n_gerentes, n_cidades, n_estados, n_paises);
 				
-		// 		cod_test++;
-		// 	}
-		// }
+				cod_test++;
+			}
+		}
 
 		// Quinto teste - um país (5000 camaras)
 		{
@@ -261,7 +259,7 @@ public class DroolsTest implements CommandLineRunner {
 								// Insere camara criada na working memory e inicializa os sensores
 								FactHandle f = workingMemory.getKieSession().insert(c);
 								threads.add(new Thread(new GpsSensorWrapper(cod_camara + "GPS", workingMemory.getKieSession(), f, "static")));
-								threads.add(new Thread(new TempSensorWrapper(cod_camara + "TempSensor", workingMemory.getKieSession(), f, "random")));
+								threads.add(new Thread(new TempSensorWrapper(cod_camara + "TempSensor", workingMemory.getKieSession(), f, "smooth")));
 							}
 
 							// Insere gerente criado na working memory e inicializa os sensores
@@ -304,9 +302,14 @@ public class DroolsTest implements CommandLineRunner {
 		}
 
 		logger.info("Escrevendo relatórios");
+		
+		logger.info("Relatório de alertas: results/performance_data/teste_" + String.format("%03d", test_code) + "_alertas.csv");
 		alertaListener.writeReport("results/performance_data/teste_" + String.format("%03d", test_code) + "_alertas.csv");
+		
+		logger.info("Relatório de perigos: results/performance_data/teste_" + String.format("%03d", test_code) + "_perigos.csv");
 		perigoListener.writeReport("results/performance_data/teste_" + String.format("%03d", test_code) + "_perigos.csv");
 
+		logger.info("Imagem da working memory: results/working_memories/teste_" + String.format("%03d", test_code) + "_workingmemory.save");
 		RuleEngine.ruleEngineManagement.saveWorkingMemory("results/working_memories/teste_" + String.format("%03d", test_code) + "_workingmemory");
 		
 	}
