@@ -52,11 +52,15 @@ public class DroolsTest implements CommandLineRunner {
 		for( String arg : args){
 			if (arg.startsWith("test_mode=") && arg.contains("performance_test")){
 				logger.info("Iniciando teste de performance");
+				long start_time = System.currentTimeMillis();
 				try {
 					performance_test(args);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				}
+				long final_time = System.currentTimeMillis();
+				logger.info("Finalizando teste de performance");
+				logger.info("Tempo total do teste: " + (final_time - start_time) + " ms");
 				System.exit(0);
 			}
 		}
@@ -78,7 +82,7 @@ public class DroolsTest implements CommandLineRunner {
     }
 
 	public void performance_test(String... args) throws FileNotFoundException{
-		long sim_time = 150000;
+		long sim_time = 300000;
 		int cod_test = 1;
 		int test_repeat = 3;
 
