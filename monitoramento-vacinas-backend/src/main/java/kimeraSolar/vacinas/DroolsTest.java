@@ -65,7 +65,7 @@ public class DroolsTest implements CommandLineRunner {
 			}
 		}
 		start_engine(args);
-		test_02(args);
+		test_01(args);
 	}
 
 	static public void start_engine( String[] args){
@@ -432,16 +432,6 @@ public class DroolsTest implements CommandLineRunner {
             for (Thread t : threads) {
             	t.start();
             }
-
-			try {
-				Thread.sleep(1000);                 //1000 milliseconds is one second.
-			} catch(InterruptedException ex) {
-				Thread.currentThread().interrupt();
-			}
-            
-			for (Thread t : threads){
-				t.interrupt();
-			}
 
 			for (Thread t : threads){
 				t.join();
