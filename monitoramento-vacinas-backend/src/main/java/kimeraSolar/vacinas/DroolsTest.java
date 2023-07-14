@@ -7,9 +7,6 @@ import java.io.PrintStream;
 import java.util.Map;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -17,6 +14,8 @@ import org.w3c.dom.NamedNodeMap;
 import kimeraSolar.ruleEngineManagement.domain.WorkingMemory;
 import kimeraSolar.vacinas.backend.configuration.CamarasConfiguration;
 import kimeraSolar.vacinas.backend.configuration.GerentesConfiguration;
+import kimeraSolar.vacinas.backend.configuration.SensorsConfiguration;
+import kimeraSolar.vacinas.backend.configuration.VacinaTiposConfiguration;
 import kimeraSolar.vacinas.domain.Camara;
 import kimeraSolar.vacinas.domain.Gerente;
 import kimeraSolar.vacinas.domain.GpsSensorWrapper;
@@ -45,6 +44,13 @@ public class DroolsTest implements CommandLineRunner {
 
 	@Autowired
 	private CamarasConfiguration camarasConfiguration;
+
+	@Autowired
+	private SensorsConfiguration sensorsConfiguration;
+	 
+	@Autowired
+    private VacinaTiposConfiguration vacinaTiposConfiguration;
+
 
 	static Logger logger = LoggerFactory.getLogger(DroolsTest.class);
 
@@ -200,7 +206,6 @@ public class DroolsTest implements CommandLineRunner {
 	public void execute_performance_test(int test_code, long sim_time, int n_vacinas, int n_camaras, int n_gerentes, int n_cidades, int n_estados, int n_paises){
 		
 		WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
-		List<Thread> threads = new LinkedList<Thread>();
 
 		AlertaListener alertaListener = new AlertaListener();
 		PerigoListener perigoListener = new PerigoListener();
@@ -241,13 +246,14 @@ public class DroolsTest implements CommandLineRunner {
 									String cod_vacina = cod_camara + "V" + String.format("%03d", vacina);
 									int minTemp = -2;
 									int maxTemp = 8;
-									Vacina v = new Vacina(
-										new Vacina.TipoVacina(
+									Vacina.TipoVacina tipo = new Vacina.TipoVacina(
 											cod_vacina, 
 											(int) ((Math.random() * (minTemp - (-6))) + (-6)), 
 											(int) ((Math.random() * (12 - maxTemp)) + maxTemp), 
 											sim_time
-										),
+										);
+									Vacina v = new Vacina(
+										tipo,
 										new Date(),
 										null,
 										false
@@ -258,17 +264,19 @@ public class DroolsTest implements CommandLineRunner {
 									// Insere vacina criada na câmara e na working memory
 									c.addVacina(v);
 									RuleEngine.ruleEngineManagement.insertFact(v);
+
+									vacinaTiposConfiguration.addVacinaTipo(tipo);
 								}
 
 								// Insere camara criada na working memory e inicializa os sensores
 								FactHandle f = workingMemory.getKieSession().insert(c);
-								threads.add(new Thread(new GpsSensorWrapper(cod_camara + "GPS", workingMemory.getKieSession(), f, "static")));
-								threads.add(new Thread(new TempSensorWrapper(cod_camara + "TempSensor", workingMemory.getKieSession(), f, "smooth")));
+								sensorsConfiguration.addSensorWrapper(new Thread(new GpsSensorWrapper(cod_camara + "GPS", workingMemory.getKieSession(), f, "static")));
+								sensorsConfiguration.addSensorWrapper(new Thread(new TempSensorWrapper(cod_camara + "TempSensor", workingMemory.getKieSession(), f, "smooth")));
 							}
 
 							// Insere gerente criado na working memory e inicializa os sensores
 							FactHandle f = workingMemory.getKieSession().insert(g);
-							threads.add(new Thread(new GpsSensorWrapper(cod_gerente, workingMemory.getKieSession(), f, "static")));
+							sensorsConfiguration.addSensorWrapper(new Thread(new GpsSensorWrapper(cod_gerente, workingMemory.getKieSession(), f, "static")));
 						}
 					}
 				}
@@ -278,7 +286,7 @@ public class DroolsTest implements CommandLineRunner {
 
 			long start_time = System.currentTimeMillis();
 
-			for(Thread t: threads){
+			for(Thread t: sensorsConfiguration.getSensorWrappers()){
 				t.start();
 			}
 
@@ -288,11 +296,11 @@ public class DroolsTest implements CommandLineRunner {
 				Thread.currentThread().interrupt();
 			}
 
-			for(Thread t: threads){
+			for(Thread t: sensorsConfiguration.getSensorWrappers()){
 				t.interrupt();
 			}
 
-			for(Thread t: threads){
+			for(Thread t: sensorsConfiguration.getSensorWrappers()){
 				t.join();
 			}
 
@@ -335,7 +343,6 @@ public class DroolsTest implements CommandLineRunner {
         try {
         	// load up the knowledge base        	
 	        
-        	Map<String, Vacina.TipoVacina> tipos = new HashMap<String,Vacina.TipoVacina>();
         	Map<String, String> gpsMode = new HashMap<String, String>();
         	Map<String, String> tempMode = new HashMap<String, String>();
         
@@ -352,7 +359,7 @@ public class DroolsTest implements CommandLineRunner {
         		float tempMax = Float.parseFloat(n.getNamedItem("tempMax").getTextContent());
         		long tempo = Long.parseLong(n.getNamedItem("tempo").getTextContent());
         		
-        		tipos.put(nome, new Vacina.TipoVacina(nome, tempMin, tempMax, tempo));
+        		vacinaTiposConfiguration.addVacinaTipo(new Vacina.TipoVacina(nome, tempMin, tempMax, tempo));
         	}
         	
         	for( int i = 0; i < document.getElementsByTagName("gerente").getLength(); i++) {
@@ -391,7 +398,7 @@ public class DroolsTest implements CommandLineRunner {
         		String tipo = n.getNamedItem("tipo").getTextContent();
         		String c = n.getNamedItem("camara").getTextContent();
         		
-        		Vacina v = new Vacina(tipos.get(tipo), new Date(), null, false);
+        		Vacina v = new Vacina(vacinaTiposConfiguration.getVacinaTipos().get(tipo), new Date(), null, false);
         		RuleEngine.ruleEngineManagement.insertFact(v);
         		camarasConfiguration.getCamaras().get(c).addVacina(v);
         	}
@@ -408,32 +415,30 @@ public class DroolsTest implements CommandLineRunner {
         	}
 
         	// Inicialização dos sensores
-        	List<Thread> threads = new LinkedList<Thread>();
-
         	int sensorid = 0;
             for (Map.Entry<String, Camara> entry : camarasConfiguration.getCamaras().entrySet()) {
             	Camara c = entry.getValue();
             	FactHandle f = workingMemory.getKieSession().insert(c);
-            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()), c.getLocal())));
+            	sensorsConfiguration.addSensorWrapper(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()), c.getLocal())));
             	sensorid += 1;
-            	threads.add(new Thread(new TempSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, tempMode.get(entry.getKey()))));
+            	sensorsConfiguration.addSensorWrapper(new Thread(new TempSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, tempMode.get(entry.getKey()))));
             	sensorid += 1;
             }
             
             for (Map.Entry<String, Gerente> entry : gerentesConfiguration.getGerentes().entrySet()) {
             	Gerente g = entry.getValue();
             	FactHandle f = workingMemory.getKieSession().insert(g);
-            	threads.add(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()), g.getLocal())));
+            	sensorsConfiguration.addSensorWrapper(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()), g.getLocal())));
             	sensorid += 1;
             }
 
 			logger.info("Inicializando Threads");
             
-            for (Thread t : threads) {
+            for (Thread t : sensorsConfiguration.getSensorWrappers()) {
             	t.start();
             }
 
-			for (Thread t : threads){
+			for (Thread t : sensorsConfiguration.getSensorWrappers()){
 				t.join();
 			}
 

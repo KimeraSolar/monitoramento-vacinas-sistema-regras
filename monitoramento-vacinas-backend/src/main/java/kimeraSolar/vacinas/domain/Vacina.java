@@ -7,6 +7,7 @@ public class Vacina implements Serializable {
 
 	private TipoVacina tipo;
 	private Date abastecimento;
+	private Date vencimento;
 	private Date retirada;
 	private boolean descartada;
 	private boolean hasPerigo;
@@ -21,6 +22,25 @@ public class Vacina implements Serializable {
 		this.descartada = descartada;
 		this.hasAlerta = false;
 		this.hasPerigo = false;
+	}
+
+	public Vacina(TipoVacina tipo, Date abastecimento, Date vencimento, Date retirada, boolean descartada) {
+		super();
+		this.tipo = tipo;
+		this.abastecimento = abastecimento;
+		this.vencimento = vencimento;
+		this.retirada = retirada;
+		this.descartada = descartada;
+		this.hasAlerta = false;
+		this.hasPerigo = false;
+	}
+
+	public void setVencimento(Date vencimento){
+		this.vencimento = vencimento;
+	}
+
+	public Date getVencimento(){
+		return this.vencimento;
 	}
 
 	public void setPerigo(boolean perigo){

@@ -51,6 +51,10 @@ public class Gerente extends MovingObject implements Serializable {
 		this.camaras.add(camara);
 	}
 
+	public void removeCamara(Camara camara){
+		this.camaras.remove(camara);
+	}
+
 	public Map<Date, String> getMensagens() {
 		return mensagens;
 	}

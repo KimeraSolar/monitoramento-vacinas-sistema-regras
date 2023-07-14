@@ -94,6 +94,10 @@ public class Camara extends MovingObject implements Serializable{
 	public void removeGerente(Gerente g) {
 		this.gerentes.remove(g);
 	}
+
+	public List<Gerente> getGerentes(){
+		return this.gerentes;
+	}
 	
 	public Gerente gerenteMaisProx() {
 		Gerente maisProx = gerentes.get(0);

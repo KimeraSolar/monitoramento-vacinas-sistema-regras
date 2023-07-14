@@ -20,4 +20,8 @@ public class CamarasConfiguration {
         return camaras;
     }
 
+    public void removeCamara(String camaraId){
+        camaras.remove(camaraId);
+    }
+
 }
