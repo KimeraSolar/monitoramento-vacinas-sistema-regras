@@ -6,6 +6,7 @@ import java.util.Date;
 public class Vacina implements Serializable {
 
 	private TipoVacina tipo;
+	private String vacinaId;
 	private Date abastecimento;
 	private Date vencimento;
 	private Date retirada;
@@ -14,9 +15,10 @@ public class Vacina implements Serializable {
 	private boolean hasAlerta;
 
 	
-	public Vacina(TipoVacina tipo, Date abastecimento, Date retirada, boolean descartada) {
+	public Vacina(TipoVacina tipo, String vacinaId, Date abastecimento, Date retirada, boolean descartada) {
 		super();
 		this.tipo = tipo;
+		this.vacinaId = vacinaId;
 		this.abastecimento = abastecimento;
 		this.retirada = retirada;
 		this.descartada = descartada;
@@ -24,9 +26,10 @@ public class Vacina implements Serializable {
 		this.hasPerigo = false;
 	}
 
-	public Vacina(TipoVacina tipo, Date abastecimento, Date vencimento, Date retirada, boolean descartada) {
+	public Vacina(TipoVacina tipo, String vacinaId, Date abastecimento, Date vencimento, Date retirada, boolean descartada) {
 		super();
 		this.tipo = tipo;
+		this.vacinaId = vacinaId;
 		this.abastecimento = abastecimento;
 		this.vencimento = vencimento;
 		this.retirada = retirada;
@@ -43,6 +46,10 @@ public class Vacina implements Serializable {
 		return this.vencimento;
 	}
 
+	public String getVacinaId(){
+		return this.vacinaId;
+	}
+
 	public void setPerigo(boolean perigo){
 		this.hasPerigo = perigo;
 	}
@@ -53,12 +60,11 @@ public class Vacina implements Serializable {
 
 	public String getStatus(){
 		if(this.isDescartada()) return "Descartada";
-		if(this.hasPerigo) return "Perigo";
 		if(this.hasAlerta) return "Alerta";
+		if(this.hasPerigo) return "Perigo";
 		return "Apropriada";
 	}
 
-	
 	public static class TipoVacina implements Serializable{
 
 		private String nome;

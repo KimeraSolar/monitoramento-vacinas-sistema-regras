@@ -5,21 +5,26 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.kie.api.runtime.rule.FactHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+import kimeraSolar.ruleEngineManagement.domain.WorkingMemory;
 import kimeraSolar.vacinas.backend.configuration.CamarasConfiguration;
 import kimeraSolar.vacinas.backend.configuration.GerentesConfiguration;
 import kimeraSolar.vacinas.backend.configuration.SensorsConfiguration;
 import kimeraSolar.vacinas.backend.configuration.VacinaTiposConfiguration;
+import kimeraSolar.vacinas.backend.configuration.VacinasConfiguration;
 import kimeraSolar.vacinas.backend.schemas.CamaraSchema;
 import kimeraSolar.vacinas.backend.schemas.VacinaSchema;
 import kimeraSolar.vacinas.domain.Camara;
@@ -44,6 +49,9 @@ public class CamaraController {
 
 	@Autowired
 	private SensorsConfiguration sensorsConfiguration;
+	
+    @Autowired
+	private VacinasConfiguration vacinasConfiguration;
 
     @Autowired
     private VacinaTiposConfiguration vacinaTiposConfiguration;
@@ -63,30 +71,37 @@ public class CamaraController {
     public CamaraSchema.CamaraInsertSchema insertCamara(@RequestBody CamaraSchema.CamaraInsertSchema camaraInsertSchema){
         logger.info("Inserting new Camara {}", camaraInsertSchema.camaraName);
         try{
-            Gerente g = gerentesConfiguration.getGerentes().get(camaraInsertSchema.gerenteName);
-                
+            Pair<Gerente, FactHandle> gerentePair = gerentesConfiguration.getGerente(camaraInsertSchema.gerenteName);
+            WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+        
             if(camarasConfiguration.getCamaras().containsKey(camaraInsertSchema.camaraName)){
-                Camara c = camarasConfiguration.getCamaras().get(camaraInsertSchema.camaraName);
-                c.addGerente(g);
-                g.addCamara(c);
+                Pair<Camara, FactHandle> camaraPair = camarasConfiguration.getCamara(camaraInsertSchema.camaraName);
+                camaraPair.getLeft().addGerente(gerentePair.getLeft());
+                gerentePair.getLeft().addCamara(camaraPair.getLeft());
+                workingMemory.getKieSession().update(gerentePair.getRight(), gerentePair.getLeft());
+                workingMemory.getKieSession().update(camaraPair.getRight(), camaraPair.getLeft());
             }else{
                 Camara c = new Camara(camaraInsertSchema.camaraName);
-                c.addGerente(g);
-                g.addCamara(c);
+                c.addGerente(gerentePair.getLeft());
+                gerentePair.getLeft().addCamara(c);
+                workingMemory.getKieSession().update(gerentePair.getRight(), gerentePair.getLeft());
                 
                 camarasConfiguration.addCamara(c);
-                FactHandle f = RuleEngine.ruleEngineManagement.getWorkingMemory().getKieSession().insert(c);
+                Pair<Camara, FactHandle> camaraPair = camarasConfiguration.getCamara(camaraInsertSchema.camaraName);
                 
-                Thread temperatureSensorWrapper = new Thread(new TempSensorWrapper(c.getObjectId() + "TempSensor", RuleEngine.ruleEngineManagement.getWorkingMemory().getKieSession(), f, "smooth"));
+                Thread temperatureSensorWrapper = new Thread(new TempSensorWrapper(c.getObjectId() + "TempSensor", RuleEngine.ruleEngineManagement.getWorkingMemory().getKieSession(), camaraPair.getRight(), "smooth"));
                 sensorsConfiguration.addSensorWrapper(temperatureSensorWrapper);
                 temperatureSensorWrapper.start();
 
-                Thread gpsSensorWrapper = new Thread(new GpsSensorWrapper(c.getObjectId() + "GPS", RuleEngine.ruleEngineManagement.getWorkingMemory().getKieSession(), f, "static"));
+                Thread gpsSensorWrapper = new Thread(new GpsSensorWrapper(c.getObjectId() + "GPS", RuleEngine.ruleEngineManagement.getWorkingMemory().getKieSession(), camaraPair.getRight(), "static"));
                 sensorsConfiguration.addSensorWrapper(gpsSensorWrapper);
                 gpsSensorWrapper.start();
             }
-		}catch(NullPointerException exception){
+		}catch(Exception exception){
             logger.warn("Request Failed for Inserting Camara {}", camaraInsertSchema.camaraName);
+            logger.warn("Exception {}", exception.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        
         }		
         return camaraInsertSchema;
     }
@@ -95,14 +110,22 @@ public class CamaraController {
     public CamaraSchema.CamaraInsertSchema unsubscribeCamara(@RequestBody CamaraSchema.CamaraInsertSchema camaraInsertSchema){
         logger.info("Unsubscribing Gerente {} from Camara {}", camaraInsertSchema.gerenteName, camaraInsertSchema.camaraName);
         try{
-            Gerente g = gerentesConfiguration.getGerentes().get(camaraInsertSchema.gerenteName);
-            Camara c = camarasConfiguration.getCamaras().get(camaraInsertSchema.camaraName);
-            if(g.getCamaras().contains(c)){
-                c.removeGerente(g);
-                g.removeCamara(c);
+            Pair<Gerente, FactHandle> gerentePair = gerentesConfiguration.getGerente(camaraInsertSchema.gerenteName);
+            Pair<Camara, FactHandle> camaraPair = camarasConfiguration.getCamara(camaraInsertSchema.camaraName);
+                
+            if(gerentePair.getLeft().getCamaras().contains(camaraPair.getLeft())){
+                camaraPair.getLeft().removeGerente(gerentePair.getLeft());
+                gerentePair.getLeft().removeCamara(camaraPair.getLeft());
+                
+                WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+                workingMemory.getKieSession().update(gerentePair.getRight(), gerentePair.getLeft());
+                workingMemory.getKieSession().update(camaraPair.getRight(), camaraPair.getLeft());
             }
         }catch(NullPointerException exception){
             logger.warn("Request Failed for Unsubscribing Gerente {} from Camara {}", camaraInsertSchema.gerenteName, camaraInsertSchema.camaraName);
+            logger.warn("Exception {}", exception.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        
         }
     
         return camaraInsertSchema;
@@ -112,15 +135,25 @@ public class CamaraController {
     public CamaraSchema.CamaraInsertSchema deleteCamara(@RequestBody CamaraSchema.CamaraInsertSchema camaraInsertSchema){
         logger.info("Deleting Camara {}", camaraInsertSchema.camaraName);
         try{
-            Camara c = camarasConfiguration.getCamaras().get(camaraInsertSchema.camaraName);
-            if(!c.isAtiva()){
-                for(Gerente g : c.getGerentes()){
-                    g.removeCamara(c);
+            Pair<Camara, FactHandle> camaraPair = camarasConfiguration.getCamara(camaraInsertSchema.camaraName);
+            WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+        
+            if(!camaraPair.getLeft().isAtiva()){
+                for(Gerente g : camaraPair.getLeft().getGerentes()){
+                    Pair<Gerente, FactHandle> gerentePair = gerentesConfiguration.getGerente(g.getObjectId());
+            
+                    gerentePair.getLeft().removeCamara(camaraPair.getLeft());
+                    
+                    workingMemory.getKieSession().update(gerentePair.getRight(), gerentePair.getLeft());
+                
                 }
             }
-            camarasConfiguration.removeCamara(c.getObjectId());
+            camarasConfiguration.removeCamara(camaraInsertSchema.camaraName);
         }catch(NullPointerException exception){
             logger.warn("Request Failed for Deleting Camara {}", camaraInsertSchema.camaraName);
+            logger.warn("Exception {}", exception.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        
         }
         
         return camaraInsertSchema;
@@ -138,6 +171,9 @@ public class CamaraController {
                 
         }catch(NullPointerException exception){
             logger.warn("Request Failed for Camara", camaraId);
+            logger.warn("Exception {}", exception.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        
         }
         return response;
     }
@@ -158,6 +194,9 @@ public class CamaraController {
             logger.info("Request will return {} Temperaturas Info", temperaturas.size());
         }catch(NullPointerException exception){
             logger.warn("Request Failed for Camara", camaraId);
+            logger.warn("Exception {}", exception.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        
         }
         return temperaturas;
     }
@@ -170,15 +209,14 @@ public class CamaraController {
         try{
             Camara c = camarasConfiguration.getCamaras().get(camaraId);
             for( Vacina v : c.getVacinas()){
-                Vacina.TipoVacina t = v.getTipo();
-                vacinas.add( 
-                    v.getVencimento() == null ? new VacinaSchema(t.getNome(), (float) t.getTempMax(), (float) t.getTempMin(), t.getTempoDescarte(), v.getAbastecimento(), v.getStatus()) :
-                    new VacinaSchema(t.getNome(), (float) t.getTempMax(), (float) t.getTempMin(), t.getTempoDescarte(), v.getAbastecimento(), v.getVencimento(), v.getStatus())
-                );
+                vacinas.add( VacinaController.getVacinaSchema(v) );
             }
             logger.info("Request will return {} Vacinas Info", vacinas.size());
         }catch(NullPointerException exception){
             logger.warn("Request Failed for Camara {}", camaraId);
+            logger.warn("Exception {}", exception.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        
         }
 
         return vacinas;
@@ -189,10 +227,18 @@ public class CamaraController {
         logger.info("Creating new Vacina {} in Camara {}", vacinaSchema.name, camaraId);
         try{
             Vacina.TipoVacina tipo = vacinaTiposConfiguration.getVacinaTipos().get(vacinaSchema.name);
-            Camara c = camarasConfiguration.getCamaras().get(camaraId);
-            c.addVacina(new Vacina(tipo, vacinaSchema.abastecimentoDate, vacinaSchema.vencimentoDate, null, false));
+            Pair<Camara, FactHandle> camaraPair = camarasConfiguration.getCamara(camaraId);
+            Vacina v = new Vacina(tipo, camaraId + vacinaSchema.name + vacinasConfiguration.getVacinas().size() , vacinaSchema.abastecimentoDate, vacinaSchema.vencimentoDate, null, false);
+            camaraPair.getLeft().addVacina(v);
+            vacinasConfiguration.addVacina(v);
+            
+            WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+            workingMemory.getKieSession().update(camaraPair.getRight(), camaraPair.getLeft());
+            vacinaSchema = VacinaController.getVacinaSchema(v);
         }catch(Exception exception){
             logger.warn("Failed to Create Vacina {} in Camara {}", vacinaSchema.name, camaraId);
+            logger.warn("Exception {}", exception.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return vacinaSchema;
     }

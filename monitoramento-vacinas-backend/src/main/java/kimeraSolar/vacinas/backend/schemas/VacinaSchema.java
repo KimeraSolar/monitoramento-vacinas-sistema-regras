@@ -1,43 +1,9 @@
 package kimeraSolar.vacinas.backend.schemas;
 
-import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.commons.lang3.time.DateUtils;
-
-public class VacinaSchema implements Serializable{
-    public VacinaSchema(String name, double tempMin, double tempMax, long tempoDescarte, Date abastecimento, String status) {
-        super();
-        this.name = name;
-        this.tempMax = tempMax;
-        this.tempMin = tempMin;
-        this.tempoDescarte = tempoDescarte;
-        this.abastecimentoDate = abastecimento;
-        this.vencimentoDate = DateUtils.addDays(abastecimento, 30);
-        this.status = status;
-    }
-
-    public VacinaSchema(String name, double tempMin, double tempMax, long tempoDescarte, Date abastecimento, Date vencimento, String status) {
-        super();
-        this.name = name;
-        this.tempMax = tempMax;
-        this.tempMin = tempMin;
-        this.tempoDescarte = tempoDescarte;
-        this.abastecimentoDate = abastecimento;
-        this.vencimentoDate = vencimento;
-        this.status = status;
-    }
-
-    public VacinaSchema(String name, double tempMin, double tempMax, long tempoDescarte, Date abastecimento, Date vencimento) {
-        super();
-        this.name = name;
-        this.tempMax = tempMax;
-        this.tempMin = tempMin;
-        this.tempoDescarte = tempoDescarte;
-        this.abastecimentoDate = abastecimento;
-        this.vencimentoDate = vencimento;
-    }
-
+public class VacinaSchema{
+    
     public VacinaSchema(){
         this.name = null;
         this.tempMax = 0;
@@ -49,14 +15,16 @@ public class VacinaSchema implements Serializable{
     };
     
     public String name;
+    public String id;
     public double tempMin;
     public double tempMax;
     public long tempoDescarte;
     public Date abastecimentoDate;
     public Date vencimentoDate;
+    public Date desabastecimentoDate;
     public String status;
 
-    public static class TipoSchema implements Serializable{
+    public static class TipoSchema{
         public TipoSchema(String name, double tempMin, double tempMax, long tempoDescarte){
             this.name = name;
             this.tempMax = tempMax;
@@ -68,5 +36,10 @@ public class VacinaSchema implements Serializable{
         public double tempMax;
         public long tempoDescarte;
     }
-    
+   
+    public static class VacinaMoveSchema{
+        public String vacinaId;
+        public String camaraAtualId;
+        public String camaraNovaId;
+    }
 }

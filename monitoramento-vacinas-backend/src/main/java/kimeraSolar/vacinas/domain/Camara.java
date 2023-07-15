@@ -39,8 +39,8 @@ public class Camara extends MovingObject implements Serializable{
 
 	public String getStatus(){
 		if(!this.isAtiva()) return "Inativa";
-		if(this.hasPerigo) return "Perigo";
 		if(this.hasAlerta) return "Alerta";
+		if(this.hasPerigo) return "Perigo";
 		return "Normal";
 	}
 

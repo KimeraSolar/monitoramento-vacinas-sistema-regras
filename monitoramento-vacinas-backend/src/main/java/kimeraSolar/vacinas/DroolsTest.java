@@ -16,6 +16,7 @@ import kimeraSolar.vacinas.backend.configuration.CamarasConfiguration;
 import kimeraSolar.vacinas.backend.configuration.GerentesConfiguration;
 import kimeraSolar.vacinas.backend.configuration.SensorsConfiguration;
 import kimeraSolar.vacinas.backend.configuration.VacinaTiposConfiguration;
+import kimeraSolar.vacinas.backend.configuration.VacinasConfiguration;
 import kimeraSolar.vacinas.domain.Camara;
 import kimeraSolar.vacinas.domain.Gerente;
 import kimeraSolar.vacinas.domain.GpsSensorWrapper;
@@ -28,6 +29,7 @@ import kimeraSolar.vacinas.services.listeners.PerigoListener;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.kie.api.definition.rule.Rule;
 import org.kie.api.runtime.rule.FactHandle;
 import org.slf4j.Logger;
@@ -47,6 +49,9 @@ public class DroolsTest implements CommandLineRunner {
 
 	@Autowired
 	private SensorsConfiguration sensorsConfiguration;
+	
+    @Autowired
+	private VacinasConfiguration vacinasConfiguration;
 	 
 	@Autowired
     private VacinaTiposConfiguration vacinaTiposConfiguration;
@@ -228,15 +233,13 @@ public class DroolsTest implements CommandLineRunner {
 							String cod_gerente = cod_cidade + "G" + String.format("%03d", gerente);
 							
 							Gerente g = new Gerente(cod_gerente, cod_gerente);
-							gerentesConfiguration.addGerente(g);
 							
 							// Inicializa camaras
 							for (int camara = 1; camara <= n_camaras; camara++){
 								String cod_camara = cod_gerente + "Ca" + String.format("%03d", camara);
 								
 								Camara c = new Camara(cod_camara);
-								camarasConfiguration.addCamara(c);
-
+								
 								// Relaciona gerente e câmara
 								c.addGerente(g);
 								g.addCamara(c);
@@ -254,6 +257,7 @@ public class DroolsTest implements CommandLineRunner {
 										);
 									Vacina v = new Vacina(
 										tipo,
+										cod_vacina,
 										new Date(),
 										null,
 										false
@@ -263,20 +267,21 @@ public class DroolsTest implements CommandLineRunner {
 
 									// Insere vacina criada na câmara e na working memory
 									c.addVacina(v);
-									RuleEngine.ruleEngineManagement.insertFact(v);
-
+									vacinasConfiguration.addVacina(v);
 									vacinaTiposConfiguration.addVacinaTipo(tipo);
 								}
 
 								// Insere camara criada na working memory e inicializa os sensores
-								FactHandle f = workingMemory.getKieSession().insert(c);
-								sensorsConfiguration.addSensorWrapper(new Thread(new GpsSensorWrapper(cod_camara + "GPS", workingMemory.getKieSession(), f, "static")));
-								sensorsConfiguration.addSensorWrapper(new Thread(new TempSensorWrapper(cod_camara + "TempSensor", workingMemory.getKieSession(), f, "smooth")));
+								camarasConfiguration.addCamara(c);
+								Pair<Camara, FactHandle> camaraPair = camarasConfiguration.getCamara(cod_camara);
+								sensorsConfiguration.addSensorWrapper(new Thread(new GpsSensorWrapper(cod_camara + "GPS", workingMemory.getKieSession(), camaraPair.getRight(), "static")));
+								sensorsConfiguration.addSensorWrapper(new Thread(new TempSensorWrapper(cod_camara + "TempSensor", workingMemory.getKieSession(), camaraPair.getRight(), "smooth")));
 							}
 
 							// Insere gerente criado na working memory e inicializa os sensores
-							FactHandle f = workingMemory.getKieSession().insert(g);
-							sensorsConfiguration.addSensorWrapper(new Thread(new GpsSensorWrapper(cod_gerente, workingMemory.getKieSession(), f, "static")));
+							gerentesConfiguration.addGerente(g);
+							Pair<Gerente, FactHandle> gerentePair = gerentesConfiguration.getGerente(cod_gerente);
+							sensorsConfiguration.addSensorWrapper(new Thread(new GpsSensorWrapper(cod_gerente, workingMemory.getKieSession(), gerentePair.getRight(), "static")));
 						}
 					}
 				}
@@ -397,10 +402,12 @@ public class DroolsTest implements CommandLineRunner {
         		
         		String tipo = n.getNamedItem("tipo").getTextContent();
         		String c = n.getNamedItem("camara").getTextContent();
-        		
-        		Vacina v = new Vacina(vacinaTiposConfiguration.getVacinaTipos().get(tipo), new Date(), null, false);
-        		RuleEngine.ruleEngineManagement.insertFact(v);
-        		camarasConfiguration.getCamaras().get(c).addVacina(v);
+        		Vacina.TipoVacina t = vacinaTiposConfiguration.getVacinaTipos().get(tipo);
+        		Pair<Camara, FactHandle> camaraPair = camarasConfiguration.getCamara(c);
+        		Vacina v = new Vacina(t, camaraPair.getLeft().getObjectId() + t.getNome() + vacinasConfiguration.getVacinas().size(), new Date(), null, false);
+        		vacinasConfiguration.addVacina(v);
+				camaraPair.getLeft().addVacina(v);
+				workingMemory.getKieSession().update(camaraPair.getRight(), camaraPair.getLeft());
         	}
         	
         	for( int i = 0; i < document.getElementsByTagName("responsabilidade").getLength(); i++) {
@@ -409,17 +416,21 @@ public class DroolsTest implements CommandLineRunner {
         		String gerente = n.getNamedItem("gerente").getTextContent();
         		String camara = n.getNamedItem("camara").getTextContent();
         		
-        		Camara c = camarasConfiguration.getCamaras().get(camara);
-        		Gerente g = gerentesConfiguration.getGerentes().get(gerente);
-        		c.addGerente(g); g.addCamara(c);
+        		Pair<Camara, FactHandle> camaraPair = camarasConfiguration.getCamara(camara);
+        		Pair<Gerente,FactHandle> gerentePair = gerentesConfiguration.getGerente(gerente);
+        		camaraPair.getLeft().addGerente(gerentePair.getLeft()); 
+				gerentePair.getLeft().addCamara(camaraPair.getLeft());
+				workingMemory.getKieSession().update(gerentePair.getRight(), gerentePair.getLeft());
+                workingMemory.getKieSession().update(camaraPair.getRight(), camaraPair.getLeft());
+            
         	}
 
         	// Inicialização dos sensores
         	int sensorid = 0;
             for (Map.Entry<String, Camara> entry : camarasConfiguration.getCamaras().entrySet()) {
             	Camara c = entry.getValue();
-            	FactHandle f = workingMemory.getKieSession().insert(c);
-            	sensorsConfiguration.addSensorWrapper(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()), c.getLocal())));
+            	FactHandle f = camarasConfiguration.getCamarasFactHandle().get(c.getObjectId());
+				sensorsConfiguration.addSensorWrapper(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()), c.getLocal())));
             	sensorid += 1;
             	sensorsConfiguration.addSensorWrapper(new Thread(new TempSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, tempMode.get(entry.getKey()))));
             	sensorid += 1;
@@ -427,7 +438,7 @@ public class DroolsTest implements CommandLineRunner {
             
             for (Map.Entry<String, Gerente> entry : gerentesConfiguration.getGerentes().entrySet()) {
             	Gerente g = entry.getValue();
-            	FactHandle f = workingMemory.getKieSession().insert(g);
+            	FactHandle f = gerentesConfiguration.getGerentesFactHandle().get(g.getObjectId());
             	sensorsConfiguration.addSensorWrapper(new Thread(new GpsSensorWrapper("s" + String.format("%01d", sensorid), workingMemory.getKieSession(), f, gpsMode.get(entry.getKey()), g.getLocal())));
             	sensorid += 1;
             }
