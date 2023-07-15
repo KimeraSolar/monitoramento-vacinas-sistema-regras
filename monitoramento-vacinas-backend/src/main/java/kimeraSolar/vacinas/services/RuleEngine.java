@@ -8,6 +8,8 @@ import org.kie.api.builder.KieBuilder;
 import org.kie.api.builder.KieFileSystem;
 import org.kie.api.builder.KieModule;
 import org.kie.api.runtime.KieContainer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import kimeraSolar.ruleEngineManagement.configurations.RuleEngineConfiguration;
 import kimeraSolar.ruleEngineManagement.configurations.implementation.DroolsRuleEngineConfiguration;
@@ -16,19 +18,47 @@ import kimeraSolar.ruleEngineManagement.domain.WorkingMemory;
 import kimeraSolar.ruleEngineManagement.services.ruleEngineServices.RuleEngineManagement;
 import kimeraSolar.ruleEngineManagement.services.ruleEngineServices.implementation.DroolsRuleEngineManagement;
 import kimeraSolar.ruleEngineManagement.services.workingMemoryServices.implementation.DefaultWorkingMemoryBuilder;
-import kimeraSolar.vacinas.services.configurations.RegrasMonitoramento;
+import kimeraSolar.vacinas.services.configurations.RegrasMonitoramento.AlertaRuleProvider;
+import kimeraSolar.vacinas.services.configurations.RegrasMonitoramento.DescarteRuleProvider;
+import kimeraSolar.vacinas.services.configurations.RegrasMonitoramento.FactDeclarationsProvider;
+import kimeraSolar.vacinas.services.configurations.RegrasMonitoramento.ManutencaoCamaraRuleProvider;
+import kimeraSolar.vacinas.services.configurations.RegrasMonitoramento.ManutencaoSensoresRuleProvider;
+import kimeraSolar.vacinas.services.configurations.RegrasMonitoramento.PerigoRuleProvider;
+import kimeraSolar.vacinas.services.configurations.RegrasMonitoramento.VariacaoBruscaTemperaturaRuleProvider;
 
+@Component
 public class RuleEngine {
 
-    static String startFileName;
-    static String startFileExtension;
+    String startFileName;
+    String startFileExtension;
 
-    static public RuleEngineManagement ruleEngineManagement = new MonitoramentoVacinaEngineManagement();
-    static final String pkgName = "kimeraSolar.vacinas.rules";
-    static final String baseName = "rules";
-    static final String sessionName = ".session";
+    public RuleEngineManagement ruleEngineManagement = new MonitoramentoVacinaEngineManagement();
+    final String pkgName = "kimeraSolar.vacinas.rules";
+    final String baseName = "rules";
+    final String sessionName = ".session";
 
-    public static class MonitoramentoVacinasBuilder extends DefaultWorkingMemoryBuilder{
+    @Autowired
+    private FactDeclarationsProvider factDeclarationsProvider;
+
+    @Autowired
+    private PerigoRuleProvider perigoRuleProvider;
+
+    @Autowired
+    private AlertaRuleProvider alertaRuleProvider;
+
+    @Autowired
+    private DescarteRuleProvider descarteRuleProvider;
+
+    @Autowired
+    private ManutencaoCamaraRuleProvider manutencaoCamaraRuleProvider;
+
+    @Autowired
+    private ManutencaoSensoresRuleProvider manutencaoSensoresRuleProvider;
+
+    @Autowired
+    private VariacaoBruscaTemperaturaRuleProvider variacaoBruscaTemperaturaRuleProvider;
+
+    public class MonitoramentoVacinasBuilder extends DefaultWorkingMemoryBuilder{
 
         @Override
         public WorkingMemory build(WorkingMemoryConfigurations configurations) {
@@ -80,27 +110,27 @@ public class RuleEngine {
         public List<RulePackage> getRulePackages(){
             List<RulePackage> rulePackages = new ArrayList<>();
 
-            rulePackages.add(RegrasMonitoramento.getFactDeclarations());
+            rulePackages.add(factDeclarationsProvider.getRulePackage());
 
-            rulePackages.add(RegrasMonitoramento.getPerigoRules());
-            rulePackages.add(RegrasMonitoramento.getAlertaRules());
-            rulePackages.add(RegrasMonitoramento.getDescarteRules());
-            rulePackages.add(RegrasMonitoramento.getManutencaoCamaraRules());
-            rulePackages.add(RegrasMonitoramento.getVariacaoBruscaTempRules());
-            rulePackages.add(RegrasMonitoramento.getManutencaoSensoresRules());
+            rulePackages.add(perigoRuleProvider.getRulePackage());
+            rulePackages.add(alertaRuleProvider.getRulePackage());
+            rulePackages.add(descarteRuleProvider.getRulePackage());
+            rulePackages.add(manutencaoCamaraRuleProvider.getRulePackage());
+            rulePackages.add(variacaoBruscaTemperaturaRuleProvider.getRulePackage());
+            rulePackages.add(manutencaoSensoresRuleProvider.getRulePackage());
 
             return rulePackages;
         }
         
     }
 
-    public static class MonitoramentoVacinaEngineManagement extends DroolsRuleEngineManagement{
+    public class MonitoramentoVacinaEngineManagement extends DroolsRuleEngineManagement{
         public MonitoramentoVacinaEngineManagement(){
             this.setBuilder(new MonitoramentoVacinasBuilder());
         }
     }
 
-    static public void startEngine(String[] args){
+    public void startEngine(String[] args){
 
         RuleEngineConfiguration ruleEngineConfiguration = new DroolsRuleEngineConfiguration();
         ruleEngineConfiguration.setPkgName(pkgName);

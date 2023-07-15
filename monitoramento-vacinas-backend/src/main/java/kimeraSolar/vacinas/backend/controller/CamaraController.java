@@ -55,6 +55,9 @@ public class CamaraController {
 
     @Autowired
     private VacinaTiposConfiguration vacinaTiposConfiguration;
+
+    @Autowired
+    private RuleEngine ruleEngine;
  
     public static class TemperaturaObject{
 
@@ -72,7 +75,7 @@ public class CamaraController {
         logger.info("Inserting new Camara {}", camaraInsertSchema.camaraName);
         try{
             Pair<Gerente, FactHandle> gerentePair = gerentesConfiguration.getGerente(camaraInsertSchema.gerenteName);
-            WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+            WorkingMemory workingMemory = ruleEngine.ruleEngineManagement.getWorkingMemory();
         
             if(camarasConfiguration.getCamaras().containsKey(camaraInsertSchema.camaraName)){
                 Pair<Camara, FactHandle> camaraPair = camarasConfiguration.getCamara(camaraInsertSchema.camaraName);
@@ -89,11 +92,11 @@ public class CamaraController {
                 camarasConfiguration.addCamara(c);
                 Pair<Camara, FactHandle> camaraPair = camarasConfiguration.getCamara(camaraInsertSchema.camaraName);
                 
-                Thread temperatureSensorWrapper = new Thread(new TempSensorWrapper(c.getObjectId() + "TempSensor", RuleEngine.ruleEngineManagement.getWorkingMemory().getKieSession(), camaraPair.getRight(), "smooth"));
+                Thread temperatureSensorWrapper = new Thread(new TempSensorWrapper(c.getObjectId() + "TempSensor", ruleEngine.ruleEngineManagement.getWorkingMemory().getKieSession(), camaraPair.getRight(), "smooth"));
                 sensorsConfiguration.addSensorWrapper(temperatureSensorWrapper);
                 temperatureSensorWrapper.start();
 
-                Thread gpsSensorWrapper = new Thread(new GpsSensorWrapper(c.getObjectId() + "GPS", RuleEngine.ruleEngineManagement.getWorkingMemory().getKieSession(), camaraPair.getRight(), "static"));
+                Thread gpsSensorWrapper = new Thread(new GpsSensorWrapper(c.getObjectId() + "GPS", ruleEngine.ruleEngineManagement.getWorkingMemory().getKieSession(), camaraPair.getRight(), "static"));
                 sensorsConfiguration.addSensorWrapper(gpsSensorWrapper);
                 gpsSensorWrapper.start();
             }
@@ -117,7 +120,7 @@ public class CamaraController {
                 camaraPair.getLeft().removeGerente(gerentePair.getLeft());
                 gerentePair.getLeft().removeCamara(camaraPair.getLeft());
                 
-                WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+                WorkingMemory workingMemory = ruleEngine.ruleEngineManagement.getWorkingMemory();
                 workingMemory.getKieSession().update(gerentePair.getRight(), gerentePair.getLeft());
                 workingMemory.getKieSession().update(camaraPair.getRight(), camaraPair.getLeft());
             }
@@ -136,7 +139,7 @@ public class CamaraController {
         logger.info("Deleting Camara {}", camaraInsertSchema.camaraName);
         try{
             Pair<Camara, FactHandle> camaraPair = camarasConfiguration.getCamara(camaraInsertSchema.camaraName);
-            WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+            WorkingMemory workingMemory = ruleEngine.ruleEngineManagement.getWorkingMemory();
         
             if(!camaraPair.getLeft().isAtiva()){
                 for(Gerente g : camaraPair.getLeft().getGerentes()){
@@ -234,7 +237,7 @@ public class CamaraController {
             camaraPair.getLeft().addVacina(v);
             vacinasConfiguration.addVacina(v);
             
-            WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+            WorkingMemory workingMemory = ruleEngine.ruleEngineManagement.getWorkingMemory();
             workingMemory.getKieSession().update(camaraPair.getRight(), camaraPair.getLeft());
             vacinaSchema = VacinaController.getVacinaSchema(v);
         }catch(Exception exception){

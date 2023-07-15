@@ -56,6 +56,8 @@ public class DroolsTest implements CommandLineRunner {
 	@Autowired
     private VacinaTiposConfiguration vacinaTiposConfiguration;
 
+	@Autowired
+    private RuleEngine ruleEngine;
 
 	static Logger logger = LoggerFactory.getLogger(DroolsTest.class);
 
@@ -79,14 +81,14 @@ public class DroolsTest implements CommandLineRunner {
 		test_01(args);
 	}
 
-	static public void start_engine( String[] args){
+	public void start_engine( String[] args){
 		
-		RuleEngine.startEngine(args);
+		ruleEngine.startEngine(args);
 		
 		logger.info("Inicializando Working Memory do MonitoraVax...");
 		logger.info("Regras inicializadas:");
 		
-        for(Rule rule : RuleEngine.ruleEngineManagement.listRules()){
+        for(Rule rule : ruleEngine.ruleEngineManagement.listRules()){
             logger.info(rule.toString());
         }
 
@@ -210,7 +212,7 @@ public class DroolsTest implements CommandLineRunner {
 
 	public void execute_performance_test(int test_code, long sim_time, int n_vacinas, int n_camaras, int n_gerentes, int n_cidades, int n_estados, int n_paises){
 		
-		WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+		WorkingMemory workingMemory = ruleEngine.ruleEngineManagement.getWorkingMemory();
 
 		AlertaListener alertaListener = new AlertaListener();
 		PerigoListener perigoListener = new PerigoListener();
@@ -327,7 +329,7 @@ public class DroolsTest implements CommandLineRunner {
 		perigoListener.writeReport("results/performance_data/teste_" + String.format("%03d", test_code) + "_perigos.csv");
 
 		logger.info("Imagem da working memory: results/working_memories/teste_" + String.format("%03d", test_code) + "_workingmemory.save");
-		RuleEngine.ruleEngineManagement.saveWorkingMemory("results/working_memories/teste_" + String.format("%03d", test_code) + "_workingmemory");
+		ruleEngine.ruleEngineManagement.saveWorkingMemory("results/working_memories/teste_" + String.format("%03d", test_code) + "_workingmemory");
 		
 	}
 
@@ -343,7 +345,7 @@ public class DroolsTest implements CommandLineRunner {
 
 		logger.info("Input file: " + INPUT_FILE);
 
-		WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+		WorkingMemory workingMemory = ruleEngine.ruleEngineManagement.getWorkingMemory();
     	
         try {
         	// load up the knowledge base        	
@@ -461,7 +463,7 @@ public class DroolsTest implements CommandLineRunner {
     }
 
 	public void test_02(String... args){
-		WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+		WorkingMemory workingMemory = ruleEngine.ruleEngineManagement.getWorkingMemory();
 		AlertaListener alertaListener = new AlertaListener();
 		PerigoListener perigoListener = new PerigoListener();
     	workingMemory.getKieSession().addEventListener(alertaListener);

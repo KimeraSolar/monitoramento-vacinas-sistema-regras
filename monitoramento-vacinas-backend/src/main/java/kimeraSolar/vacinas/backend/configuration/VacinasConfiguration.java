@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.kie.api.runtime.rule.FactHandle;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 import kimeraSolar.ruleEngineManagement.domain.WorkingMemory;
@@ -16,10 +17,13 @@ public class VacinasConfiguration {
     
     private Map<String, Vacina> vacinas = new HashMap<>();
     private Map<String, FactHandle> vacinasFactHandle = new HashMap<>();
+
+    @Autowired
+    private RuleEngine ruleEngine;
     
     public FactHandle addVacina(Vacina v){
         vacinas.put(v.getVacinaId(), v);
-        WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+        WorkingMemory workingMemory = ruleEngine.ruleEngineManagement.getWorkingMemory();
         FactHandle f = workingMemory.getKieSession().insert(v);
         vacinasFactHandle.put(v.getVacinaId(), f);
         return f;
@@ -36,7 +40,7 @@ public class VacinasConfiguration {
     public void removeVacina(String vacinaId){
         vacinas.remove(vacinaId);
         FactHandle f = vacinasFactHandle.get(vacinaId);
-        WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+        WorkingMemory workingMemory = ruleEngine.ruleEngineManagement.getWorkingMemory();
         workingMemory.getKieSession().delete(f);
         vacinasFactHandle.remove(vacinaId);
     }

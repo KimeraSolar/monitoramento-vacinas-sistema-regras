@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.kie.api.runtime.rule.FactHandle;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 import kimeraSolar.ruleEngineManagement.domain.WorkingMemory;
@@ -16,10 +17,13 @@ public class CamarasConfiguration {
     
     private Map<String, Camara> camaras = new HashMap<>();
     private Map<String, FactHandle> camarasFactHandle = new HashMap<>();
+
+    @Autowired
+    private RuleEngine ruleEngine;
     
     public void addCamara(Camara c){
         camaras.put(c.getObjectId(), c);
-        WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+        WorkingMemory workingMemory = ruleEngine.ruleEngineManagement.getWorkingMemory();
         FactHandle f = workingMemory.getKieSession().insert(c);
         camarasFactHandle.put(c.getObjectId(), f);
     }
@@ -35,7 +39,7 @@ public class CamarasConfiguration {
     public void removeCamara(String camaraId){
         camaras.remove(camaraId);
         FactHandle f = camarasFactHandle.get(camaraId);
-        WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+        WorkingMemory workingMemory = ruleEngine.ruleEngineManagement.getWorkingMemory();
         workingMemory.getKieSession().delete(f);
         camarasFactHandle.remove(camaraId);
     }

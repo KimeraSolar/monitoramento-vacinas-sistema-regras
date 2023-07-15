@@ -43,6 +43,9 @@ public class VacinaController {
     @Autowired
     private CamarasConfiguration camarasConfiguration;
 
+    @Autowired
+    private RuleEngine ruleEngine;
+
     @GetMapping("/tipos")
     public List<VacinaSchema.TipoSchema> getTipos(){
         logger.info("Requesting VacinaTipos Info");
@@ -87,7 +90,7 @@ public class VacinaController {
             camaraAtualPair.getLeft().removeVacina(vacinaPair.getLeft());
             camaraNovaPair.getLeft().addVacina(vacinaPair.getLeft());
             
-            WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+            WorkingMemory workingMemory = ruleEngine.ruleEngineManagement.getWorkingMemory();
             workingMemory.getKieSession().update(camaraAtualPair.getRight(), camaraAtualPair.getLeft());
             workingMemory.getKieSession().update(camaraNovaPair.getRight(), camaraNovaPair.getLeft());
 
@@ -111,7 +114,7 @@ public class VacinaController {
             camaraPair.getLeft().removeVacina(vacinaPair.getLeft());
             vacinaPair.getLeft().setRetirada(new Date());
             
-            WorkingMemory workingMemory = RuleEngine.ruleEngineManagement.getWorkingMemory();
+            WorkingMemory workingMemory = ruleEngine.ruleEngineManagement.getWorkingMemory();
             workingMemory.getKieSession().update(camaraPair.getRight(), camaraPair.getLeft());
             workingMemory.getKieSession().update(vacinaPair.getRight(), vacinaPair.getLeft());
 
