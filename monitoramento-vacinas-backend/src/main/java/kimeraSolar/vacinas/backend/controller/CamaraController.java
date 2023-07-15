@@ -147,9 +147,11 @@ public class CamaraController {
                     workingMemory.getKieSession().update(gerentePair.getRight(), gerentePair.getLeft());
                 
                 }
+                camarasConfiguration.removeCamara(camaraInsertSchema.camaraName);
+            }else{
+                throw new Exception("The Camara still is active");
             }
-            camarasConfiguration.removeCamara(camaraInsertSchema.camaraName);
-        }catch(NullPointerException exception){
+        }catch(Exception exception){
             logger.warn("Request Failed for Deleting Camara {}", camaraInsertSchema.camaraName);
             logger.warn("Exception {}", exception.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
