@@ -13,6 +13,38 @@ public class ManutencaoSensoresRuleProvider {
     @Autowired
     private PkgNameProvider pkgNameProvider;
 
+    private long eventos = 10;
+
+    private String tempo = "1m";
+
+    private String riseRuleName = "Rise Manutencao Sensores Rule";
+
+    private String retractRuleName = "Retract Manutencao Sensores Rule";
+
+    public String getRiseRuleName(){
+        return riseRuleName;
+    }
+
+    public String getRetractRuleName(){
+        return retractRuleName;
+    }
+
+    public long getEventos(){
+        return eventos;
+    }
+
+    public void setEventos(long eventos){
+        this.eventos = eventos;
+    }
+
+    public String getTempo(){
+        return tempo;
+    }
+
+    public void setTempo(String tempo){
+        this.tempo = tempo;
+    }
+
     public RulePackage getRulePackage(){
         RulePackage rulePackage = new RulePackage();
 
@@ -20,7 +52,7 @@ public class ManutencaoSensoresRuleProvider {
         rulePackage.setFileName("manutencaoSensores");
 
         JSONObject riseManutencaoJsonObject = new JSONObject();
-        riseManutencaoJsonObject.put("ruleName", "Rise Manutencao Sensores Rule");
+        riseManutencaoJsonObject.put("ruleName", riseRuleName);
 
         StringBuilder riseManutencaoStringBuilder = new StringBuilder();
         riseManutencaoStringBuilder
@@ -28,20 +60,20 @@ public class ManutencaoSensoresRuleProvider {
             .append("when\n")
             .append("    $camara : Camara( ativa == true )\n")
             .append("    $casosVariacaoBrusca : Number() from accumulate(\n")
-            .append("        $v : VariacaoBruscaTemp( $camara == camara ) over window:time( 1m ),\n")
+            .append("        $v : VariacaoBruscaTemp( $camara == camara ) over window:time( " + tempo + " ),\n")
             .append("        count( $v )\n")
             .append("    )\n")
-            .append("    eval( $casosVariacaoBrusca.intValue() >= 10 )\n")
+            .append("    eval( $casosVariacaoBrusca.intValue() >= " + eventos + " )\n")
             .append("    not( exists( ManutencaoNecessariaSensores( $camara == camara, ativo == true ) ) )\n")
             .append("then\n")
             .append("    insert(new ManutencaoNecessariaSensores( $camara, true ) );\n")
-            .append("    $camara.sendMessage(\"Manutenção sugerida nos sensores da unidade \" + $camara.getObjectId() + \" após \" + $casosVariacaoBrusca.intValue() + \" casos de variação brusca de temperatura em 1m.\");\n")
+            .append("    $camara.sendMessage(\"Manutenção sugerida nos sensores da unidade \" + $camara.getObjectId() + \" após \" + $casosVariacaoBrusca.intValue() + \" casos de variação brusca de temperatura em " + tempo + ".\");\n")
             .append("end\n");
         riseManutencaoJsonObject.put("source", riseManutencaoStringBuilder.toString());
         rulePackage.addRule(RuleForm.parseJson(riseManutencaoJsonObject.toString()));
 
         JSONObject retractManutencaoJsonObject = new JSONObject();
-        retractManutencaoJsonObject.put("ruleName", "Retract Manutencao Sensores Rule");
+        retractManutencaoJsonObject.put("ruleName", retractRuleName);
 
         StringBuilder retractManutencaoStringBuilder = new StringBuilder();
         retractManutencaoStringBuilder
@@ -49,15 +81,15 @@ public class ManutencaoSensoresRuleProvider {
             .append("when\n")
             .append("    $camara : Camara( ativa == true )\n")
             .append("    $casosVariacaoBrusca : Number() from accumulate(\n")
-            .append("        $v : VariacaoBruscaTemp( $camara == camara ) over window:time( 1m ),\n")
+            .append("        $v : VariacaoBruscaTemp( $camara == camara ) over window:time( " + tempo + " ),\n")
             .append("        count( $v )\n")
             .append("    )\n")
-            .append("    eval($casosVariacaoBrusca.intValue() < 10)\n")
+            .append("    eval($casosVariacaoBrusca.intValue() < " + eventos + ")\n")
             .append("    $manutencao : ManutencaoNecessariaSensores( $camara == camara, ativo == true )\n")
             .append("then\n")
             .append("    $manutencao.setAtivo( false );\n")
             .append("    update($manutencao);\n")
-            .append("    $camara.sendMessage(\"Sem necessidade de manutenção dos sensores na unidade \" + $camara.getObjectId() + \" após \" + $casosVariacaoBrusca.intValue() + \" casos de variação brusca de temperatura nos últimos 1m.\");\n")
+            .append("    $camara.sendMessage(\"Sem necessidade de manutenção dos sensores na unidade \" + $camara.getObjectId() + \" após \" + $casosVariacaoBrusca.intValue() + \" casos de variação brusca de temperatura nos últimos " + tempo + ".\");\n")
             .append("end\n");
         retractManutencaoJsonObject.put("source", retractManutencaoStringBuilder.toString());
         rulePackage.addRule(RuleForm.parseJson(retractManutencaoJsonObject.toString()));
